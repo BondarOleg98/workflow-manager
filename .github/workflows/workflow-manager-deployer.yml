@@ -1,0 +1,44 @@
+name: Deploy a workflow-manager project to Cloud Run
+run-name: ${{ github.event.repository.name }} in deploying
+
+on:
+  push:
+    branches:
+      - '"master"'
+
+env:
+  DOCKER_IMAGE_URL: '${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/workflow-manager/v1'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: Google Cloud auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: configure Docker
+        run: |
+          gcloud auth configure-docker ${{ secrets.GCP_LOCATION }}-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.DOCKER_IMAGE_URL }} .
+          docker push ${{ env.DOCKER_IMAGE_URL }}
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy workflow-manager-service \
+            --image ${{ env.DOCKER_IMAGE_URL }} \
+            --platform managed \
+            --region ${{ secrets.GCP_LOCATION }} \
+            --allow-unauthenticated
