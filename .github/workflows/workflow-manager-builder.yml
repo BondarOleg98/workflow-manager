@@ -18,6 +18,8 @@ jobs:
           go-version: ${{ matrix.go-version }}
       - name: linter
         uses: golangci/golangci-lint-action@v6
+        env:
+          GO111MODULE: off
         with:
           version: v1.60
 
