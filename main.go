@@ -1,11 +1,11 @@
 package main
 
 import (
-	route "./routing"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	route "workflowmanager/routing"
 )
 
 func main() {
