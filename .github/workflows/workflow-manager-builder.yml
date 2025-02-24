@@ -1,0 +1,40 @@
+name: Build a workflow-manager project
+run-name: ${{ github.event.repository.name }} in building
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.19', '1.20', '1.21.x' ]
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: linter
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ '1.19', '1.20', '1.21.x' ]
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      - name: set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: install Go dependencies
+        run: go get .
+      - name: run project tests
+        run: go test -v ./...
