@@ -31,14 +31,17 @@ createTablesAndRelationships() {
 }
 
 main() {
-  local db_exists
   db_exists=$(checkDatabaseExists)
-
   if ${db_exists}; then
-    echo "Database ${PG_DATABASE_NAME} is exist"
+    echo "INFO: database ${PG_DATABASE_NAME} is exist"
   else
-    echo "Database ${PG_DATABASE_NAME} is not exist"
+    echo "WARN: Database ${PG_DATABASE_NAME} is not exist"
     createDatabase
+    db_exists=$(checkDatabaseExists)
+    if ! ${db_exists}; then
+      echo "INFO: Returning from the init script"
+      exit 1
+    fi
     grantPrivileges
   fi
   createTablesAndRelationships
