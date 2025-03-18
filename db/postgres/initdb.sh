@@ -1,4 +1,4 @@
-pg_connect_url="postgres://${PG_USERNAME}:${PG_PASSWORD}@${HOST}:${PORT}"
+pg_connect_url="postgres://${PG_USERNAME}:${PG_PASSWORD}@${HOST}:${PORT}/${PG_MAIN_DATABASE_NAME}"
 
 runSQL() {
   local script_result
@@ -32,7 +32,7 @@ createTablesAndRelationships() {
 
 main() {
   db_exists=$(checkDatabaseExists)
-  if ${db_exists}; then
+  if [[ -n "${db_exists}" ]] && ${db_exists}; then
     echo "INFO: database ${PG_DATABASE_NAME} is exist"
   else
     echo "WARN: Database ${PG_DATABASE_NAME} is not exist"
