@@ -1,3 +1,5 @@
+#!/bin/bash
+
 pg_connection_url="postgres://${PG_USERNAME}:${PG_PASSWORD}@${HOST}:${PORT}"
 
 runSQL() {
