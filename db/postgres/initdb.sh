@@ -33,9 +33,7 @@ grantPrivileges() {
 }
 
 createTablesAndRelationships() {
-  local pg_database_connect
-  pg_database_connect=${pg_connect_url}/${PG_DATABASE_NAME}
-  psql ${pg_database_connect} -f create_schema.sql
+  psql ${pg_connection_url}/${PG_DATABASE_NAME} -f create_schema.sql
 }
 
 main() {
