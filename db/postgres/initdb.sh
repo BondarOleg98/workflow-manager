@@ -8,10 +8,16 @@ runSQL() {
   echo "${script_result}"
 }
 
-checkDatabaseExists() {
+isDatabaseExists() {
   local exists_db_query
   exists_db_query="SELECT CAST(EXISTS(SELECT datname from pg_database WHERE datname='${PG_DATABASE_NAME}') AS TEXT);"
-  runSQL "${exists_db_query}"
+  db_exists=$(runSQL "${exists_db_query}")
+  if [[ -n "${db_exists}" ]] && ${db_exists}; then
+    printf "INFO: database %s is exist\n" "${PG_DATABASE_NAME}"
+    return 1
+  fi
+  printf "WARN: Database %s is not exist\n" "${PG_DATABASE_NAME}"
+  return 0
 }
 
 createDatabase() {
@@ -33,15 +39,9 @@ createTablesAndRelationships() {
 }
 
 main() {
-  db_exists=$(checkDatabaseExists)
-  if [[ -n "${db_exists}" ]] && ${db_exists}; then
-    echo "INFO: database ${PG_DATABASE_NAME} is exist"
-  else
-    echo "WARN: Database ${PG_DATABASE_NAME} is not exist"
+  if isDatabaseExists; then
     createDatabase
-    db_exists=$(checkDatabaseExists)
-    if ! ${db_exists}; then
-      echo "INFO: Returning from the init script"
+    if isDatabaseExists; then
       exit 1
     fi
     grantPrivileges
