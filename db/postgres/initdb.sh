@@ -1,8 +1,8 @@
-pg_connect_url="postgres://${PG_USERNAME}:${PG_PASSWORD}@${HOST}:${PORT}/${PG_MAIN_DATABASE_NAME}"
+pg_connection_url="postgres://${PG_USERNAME}:${PG_PASSWORD}@${HOST}:${PORT}"
 
 runSQL() {
   local script_result
-  script_result="$(psql ${pg_connect_url} -tc "$1")"
+  script_result="$(psql ${pg_connection_url}/${PG_ADMIN_DATABASE_NAME} -tc "$1")"
   echo "${script_result}"
 }
 
