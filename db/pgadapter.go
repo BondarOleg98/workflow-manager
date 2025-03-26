@@ -15,9 +15,9 @@ type Pool struct {
 func OpenDatabaseConnection(pool Pool) *sql.DB {
 	const baseConnectionUrl = "user=%s dbname=%s sslmode=verify-full"
 	dbConnectionUrl := fmt.Sprintf(baseConnectionUrl, pool.Username, pool.DatabaseName)
-	database, err := sql.Open("postgres", dbConnectionUrl)
-	if err != nil {
-	}
+	database, _ := sql.Open("postgres", dbConnectionUrl)
+// 	if err != nil {
+// 	}
 	return database
 }
 
