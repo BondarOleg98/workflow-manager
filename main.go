@@ -9,6 +9,9 @@ import (
 )
 
 func main() {
+	pgPool := db.CreatePgPool()
+	go db.InitDatabaseInstance(pgPool)
+
 	route.WorkflowEndpoints{}.BaseController()
 	err := http.ListenAndServe(":8080", nil)
 

@@ -12,10 +12,14 @@ type WorkflowEndpoints struct {
 
 func getWorkflowController(
 	responseWriter http.ResponseWriter, _ *http.Request) {
-	workflows, _ := json.Marshal(services.GetWorkflows())
-	_, err := io.Writer.Write(responseWriter, workflows)
+	workflows, err := services.GetWorkflows()
 	if err != nil {
-		return
+		responseWriter.WriteHeader(500)
+	}
+	encodedWorkflows, _ := json.Marshal(workflows)
+	_, err = io.Writer.Write(responseWriter, encodedWorkflows)
+	if err != nil {
+		responseWriter.WriteHeader(500)
 	}
 }
 

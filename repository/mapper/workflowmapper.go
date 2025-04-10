@@ -1,0 +1,30 @@
+package mapper
+
+import (
+	"database/sql"
+	"log"
+	"time"
+	"workflowmanager/models"
+)
+
+func WorkflowMapped(rows *sql.Rows) []models.Workflow {
+	var workflows []models.Workflow
+	for rows.Next() {
+		var (
+			workflowId string
+			name       string
+			createdAt  time.Time
+			updatedAt  time.Time
+		)
+		if err := rows.Scan(&workflowId, &name, &createdAt, &updatedAt); err != nil {
+			log.Fatal(err)
+		}
+		workflows = append(workflows, models.Workflow{
+			WorkflowId: workflowId,
+			Name:       name,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		})
+	}
+	return workflows
+}
