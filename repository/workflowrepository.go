@@ -2,17 +2,26 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 	"workflowmanager/db"
 	"workflowmanager/db/queries"
+	"workflowmanager/models"
+	"workflowmanager/repository/mapper"
 )
 
-// GetWorkflows TODO: add handling of the error
-func GetWorkflows() *sql.Rows {
-	pool := db.Pool{
-		Username:     "postgres",
-		DatabaseName: "postgres",
+func GetWorkflows() ([]models.Workflow, error) {
+	database := db.GetDatabaseInstance()
+	rows, err := database.Query(queries.GetWorkflowsQuery)
+
+	if err != nil {
+		return nil, err
 	}
-	database := db.OpenDatabaseConnection(pool)
-	rows, _ := database.Query(queries.GetWorkflowsQuery)
-	return rows
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal("error during closing the reader of the database")
+		}
+	}(rows)
+
+	return mapper.WorkflowMapped(rows), nil
 }
