@@ -1,2 +1,0 @@
-listen_port:
-  ${LISTEN_PORT: 8080}
