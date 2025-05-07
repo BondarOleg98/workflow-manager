@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: change app directory
-        run: cd ./app
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
@@ -32,13 +30,11 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
-      - name: change app directory
-        run: cd ./app
       - name: set up Go
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
       - name: install Go dependencies
-        run: go mod download .
+        run: go mod download
       - name: run project tests
         run: go test -v ./...
