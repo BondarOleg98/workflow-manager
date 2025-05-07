@@ -1,4 +1,4 @@
-module workflowmanager/app
+module workflowmanager
 
 go 1.20
 
