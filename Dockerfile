@@ -1,8 +1,12 @@
-FROM golang:1.20
+FROM golang:1.24 AS build
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY app/ .
+WORKDIR /app
 RUN go mod download
-COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -o /workflow-manager
+RUN CGO_ENABLED=0 GOOS=linux go build -o workflow-manager
+
+FROM debian:bullseye-slim
+WORKDIR /app
+COPY --from=build /app/workflow-manager .
 EXPOSE 8080
-CMD ["/workflow-manager"]
+CMD ["./workflow-manager"]
