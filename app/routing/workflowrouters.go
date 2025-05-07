@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"workflowmanager/services"
+	"workflowmanager/app/services"
 )
 
 type WorkflowEndpoints struct {
