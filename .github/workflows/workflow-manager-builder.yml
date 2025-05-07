@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: checkout code
         uses: actions/checkout@v4
+      - name: change app directory
+        run: cd ./app
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
