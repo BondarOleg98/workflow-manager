@@ -24,7 +24,8 @@ func main() {
 
 	route.WorkflowEndpoints{}.BaseController()
 
-	err = http.ListenAndServe(os.Getenv("SERVICE_PORT"), nil)
+	address := fmt.Sprintf(":%s", os.Getenv("SERVICE_PORT"))
+	err = http.ListenAndServe(address, nil)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		fmt.Printf("server closed\n")
