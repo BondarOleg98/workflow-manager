@@ -1,0 +1,18 @@
+services:
+  workflow-manager:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_started
+    ports:
+      - "8080:8080"
+  postgres:
+    image: "docker.io/library/postgres:alpine"
+    environment:
+     # TODO: Remove this param
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=workflow_manager
+    ports:
+      - "5431:5432"
