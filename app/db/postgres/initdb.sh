@@ -4,7 +4,7 @@ pg_connection_url="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST}:${PO
 
 runSQL() {
   local script_result
-  script_result="$(psql ${pg_connection_url}/${PG_ADMIN_DATABASE_NAME} -tc "$1")"
+  script_result="$(psql ${pg_connection_url}/${POSTGRES_ADMIN_DB} -tc "$1")"
   echo "${script_result}"
 }
 
