@@ -1,5 +1,6 @@
 services:
   workflow-manager:
+    container_name: workflow-manager
     build: .
     depends_on:
       postgres:
