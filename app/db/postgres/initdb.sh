@@ -1,10 +1,10 @@
 #!/bin/bash
 
-pg_connection_url="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${HOST}:${PORT}"
+pg_connection_url="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}"
 
 runSQL() {
   local script_result
-  script_result="$(psql ${pg_connection_url}/${POSTGRES_ADMIN_DB} -tc "$1")"
+  script_result="$(psql "${pg_connection_url}/${POSTGRES_ADMIN_DB}" -tc "$1")"
   echo "${script_result}"
 }
 
@@ -13,10 +13,10 @@ isDatabaseExists() {
   exists_db_query="SELECT CAST(EXISTS(SELECT datname from pg_database WHERE datname='${POSTGRES_DB}') AS TEXT);"
   db_exists=$(runSQL "${exists_db_query}")
   if [[ -n "${db_exists}" ]] && ${db_exists}; then
-    printf "INFO: database %s is exist\n" "${POSTGRES_DB}"
+    logInfo "The database ${POSTGRES_DB} is exist"
     return 1
   fi
-  printf "WARN: Database %s is not exist\n" "${POSTGRES_DB}"
+  logWarn "The database ${POSTGRES_DB} is not exist"
   return 0
 }
 
@@ -33,7 +33,7 @@ grantPrivileges() {
 }
 
 createTablesAndRelationships() {
-  psql ${pg_connection_url}/${POSTGRES_DB} -f create_schema.sql
+  psql "${pg_connection_url}/${POSTGRES_DB}" -f app/db/postgres/create_schema.sql
 }
 
 main() {
