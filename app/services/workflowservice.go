@@ -1,8 +1,8 @@
 package services
 
 import (
-	"workflowmanager/models"
-	"workflowmanager/repository"
+	"workflowmanager/app/models"
+	"workflowmanager/app/repository"
 )
 
 func GetWorkflows() ([]models.Workflow, error) {

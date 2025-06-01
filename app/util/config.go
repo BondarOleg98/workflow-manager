@@ -7,7 +7,7 @@ import (
 )
 
 func LoadConfigs() error {
-	const nameResourcesDirectory string = "resources"
+	const nameResourcesDirectory string = "app/resources"
 	const configFileName string = "env.yaml"
 	configFile, err := readConfigFile(
 		fmt.Sprintf("%s/%s", nameResourcesDirectory, configFileName))

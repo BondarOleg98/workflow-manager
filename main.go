@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"workflowmanager/db"
-	route "workflowmanager/routing"
-	"workflowmanager/util"
+	"workflowmanager/app/db"
+	route "workflowmanager/app/routing"
+	"workflowmanager/app/util"
 )
 
 func main() {

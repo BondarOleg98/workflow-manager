@@ -3,10 +3,10 @@ package repository
 import (
 	"database/sql"
 	"log"
-	"workflowmanager/db"
-	"workflowmanager/db/queries"
-	"workflowmanager/models"
-	"workflowmanager/repository/mapper"
+	"workflowmanager/app/db"
+	"workflowmanager/app/db/queries"
+	"workflowmanager/app/models"
+	"workflowmanager/app/repository/mapper"
 )
 
 func GetWorkflows() ([]models.Workflow, error) {

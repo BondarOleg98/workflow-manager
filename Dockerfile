@@ -1,8 +1,9 @@
-FROM golang:1.20
+FROM docker.io/library/golang:1.24
+ENV GO111MODULE=on
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY app ./app
+COPY *.go go.* build.sh ./
 RUN go mod download
-COPY *.go ./
-RUN CGO_ENABLED=0 GOOS=linux go build -o /workflow-manager
+RUN CGO_ENABLED=0 GOOS=linux go build -o workflow-manager
 EXPOSE 8080
-CMD ["/workflow-manager"]
+CMD ["./workflow-manager"]

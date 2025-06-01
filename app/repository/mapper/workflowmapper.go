@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"time"
-	"workflowmanager/models"
+	"workflowmanager/app/models"
 )
 
 func WorkflowMapped(rows *sql.Rows) []models.Workflow {

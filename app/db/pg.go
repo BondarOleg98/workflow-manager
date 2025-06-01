@@ -6,10 +6,10 @@ import (
 )
 
 func CreatePgPool() Pool {
-	username := os.Getenv("PG_USERNAME")
-	password := os.Getenv("PG_PASSWORD")
-	databaseName := os.Getenv("PG_HOST")
-	host := os.Getenv("PG_DATABASE_NAME")
+	username := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	databaseName := os.Getenv("POSTGRES_HOST")
+	host := os.Getenv("POSTGRES_DB")
 	return Pool{
 		Username:     username,
 		Password:     password,
