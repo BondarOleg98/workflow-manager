@@ -13,7 +13,7 @@ func InitDatabaseInstance(pool Pool) *sql.DB {
 	if database == nil {
 		onceInitDatabase.Do(
 			func() {
-				database, _ = sql.Open(pool.Username, pool.ConnectionUrl)
+				database, _ = sql.Open(pool.DriverName, pool.ConnectionUrl)
 			})
 	}
 	return database
@@ -23,10 +23,10 @@ func GetDatabaseInstance() *sql.DB {
 	return database
 }
 
-func CloseDatabaseConnection() error {
-	err := database.Close()
-	if err != nil {
-		return err
-	}
-	return nil
-}
+//func CloseDatabaseConnection() error {
+//	err := database.Close()
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}
