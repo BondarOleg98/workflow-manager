@@ -1,6 +1,6 @@
 -- DB version 1.0 schema
 CREATE TABLE IF NOT EXISTS workflows (
-    workflow_id uuid DEFAULT gen_random_uuid(),
+    workflow_id UUID NOT NULL,
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS workflows (
 );
 
 CREATE TABLE IF NOT EXISTS tasks (
-    task_id uuid DEFAULT gen_random_uuid(),
-    workflow_id uuid NOT NULL,
+    task_id UUID NOT NULL,
+    workflow_id UUID NOT NULL,
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 
 CREATE TABLE IF NOT EXISTS actions (
-    action_id uuid DEFAULT gen_random_uuid(),
-    task_id uuid NOT NULL,
+    action_id UUID NOT NULL,
+    task_id UUID NOT NULL,
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
