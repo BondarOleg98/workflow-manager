@@ -80,8 +80,10 @@ main() {
     createTablesAndRelationships
   fi
 
-  fillDatabase
-  checkDataSizeInTable "${tables[@]}"
+  if ${POSTGRES_TEST_DATA}; then
+    fillDatabase
+    checkDataSizeInTable "${tables[@]}"
+  fi
 }
 
 main
