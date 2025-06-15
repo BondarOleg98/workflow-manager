@@ -36,6 +36,7 @@ areTablesExist() {
       return 1
     fi
   done
+  logInfo "Tables are exist"
   return 0
 }
 
@@ -71,23 +72,16 @@ fillDatabase() {
 
 main() {
   declare -a tables=([0]=workflows [1]=tasks [2]=actions)
-  if isDatabaseExists; then
-    if areTablesExist "${tables[@]}"; then
-      fillDatabase
-      checkDataSizeInTable "${tables[@]}"
-    else
-      createTablesAndRelationships
-    fi
-  else
+  if ! isDatabaseExists; then
     createDatabase
-    if isDatabaseExists; then
-      grantPrivileges
-      createTablesAndRelationships
-      fillDatabase
-      checkDataSizeInTable "${tables[@]}"
-    fi
-    exit 1
+    grantPrivileges
   fi
+  if ! areTablesExist "${tables[@]}"; then
+    createTablesAndRelationships
+  fi
+
+  fillDatabase
+  checkDataSizeInTable "${tables[@]}"
 }
 
 main
