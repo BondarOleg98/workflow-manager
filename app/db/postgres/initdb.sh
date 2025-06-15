@@ -24,7 +24,12 @@ areTablesExist() {
   local exist_tables_query
   local table_exists
   for table_name in "$@"; do
-    exist_tables_query="SELECT 1 FROM information_schema.tables WHERE table_type='BASE TABLE' AND table_schema='public' AND table_catalog='workflow_manager' AND table_name='${table_name}';"
+    exist_tables_query="
+    SELECT 1 FROM information_schema.tables
+    WHERE table_type='BASE TABLE'
+    AND table_schema='public'
+    AND table_catalog='workflow_manager'
+    AND table_name='${table_name}';"
     table_exists=$(runSQL "${POSTGRES_DB}" "-tc" "${exist_tables_query}")
     if [[ ! "${table_exists}" ]]; then
       logWarn "The table ${table_name} is not exist"

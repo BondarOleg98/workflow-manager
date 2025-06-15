@@ -55,5 +55,5 @@ BEGIN
                 USING action_id, action_name, time_current, task_id;
         END LOOP;
     END LOOP;
-END;
+END
 $FN$
