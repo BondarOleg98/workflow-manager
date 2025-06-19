@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -11,13 +12,16 @@ func CreatePgPool() Pool {
 	databaseName := os.Getenv("POSTGRES_HOST")
 	host := os.Getenv("POSTGRES_DB")
 
-	var secure string
-	if os.Getenv("POSTGRES_HOST_AUTH_METHOD") != "trust" {
-		secure = "disable"
+	secure := "disable"
+	postgresAuthMethod := os.Getenv("POSTGRES_HOST_AUTH_METHOD")
+	if postgresAuthMethod != "" {
+		secure = postgresAuthMethod
 	}
+	log.Printf("The DB ssl is: %s", secure)
+
 	return Pool{
-	    DriverName: "postgres",
-	    ConnectionUrl: fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
+		DriverName: "postgres",
+		ConnectionUrl: fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
 			username, password, databaseName, host, secure,
 		),
 	}
