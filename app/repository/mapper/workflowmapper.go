@@ -17,7 +17,7 @@ func WorkflowMapped(rows *sql.Rows) []models.Workflow {
 			updatedAt  time.Time
 		)
 		if err := rows.Scan(&workflowId, &name, &createdAt, &updatedAt); err != nil {
-			log.Fatal(err)
+			log.Fatalf("The error during mapping data from DB %s", err)
 		}
 		workflows = append(workflows, models.Workflow{
 			WorkflowId: workflowId,

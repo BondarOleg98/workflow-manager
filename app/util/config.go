@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 )
 
@@ -12,6 +13,7 @@ func LoadConfigs() error {
 	configFile, err := readConfigFile(
 		fmt.Sprintf("%s/%s", nameResourcesDirectory, configFileName))
 	if err != nil {
+		log.Fatalf("Error during reading file: %s", err)
 		return err
 	}
 	fileContent, err := parseConfigFile(configFile)
@@ -20,6 +22,7 @@ func LoadConfigs() error {
 	}
 	err = setConfigVariables(fileContent)
 	if err != nil {
+		log.Fatalf("Error during settign values from the config file: %s", err)
 		return err
 	}
 	return nil
