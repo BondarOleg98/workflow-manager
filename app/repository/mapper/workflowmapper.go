@@ -23,7 +23,7 @@ func WorkflowMapped(row *sql.Rows) (models.Workflow, error) {
 	workflow := models.Workflow{}
 	row.Next()
 	if err = row.Scan(&workflow.WorkflowId, &workflow.Name, &workflow.CreatedAt, &workflow.UpdatedAt); err != nil {
-		log.Fatalf("The error during mapping data from DB %s", err)
+		log.Printf("The error during mapping data from DB %s", err)
 		return workflow, err
 	}
 	return workflow, err

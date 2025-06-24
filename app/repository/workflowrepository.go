@@ -14,7 +14,7 @@ func GetWorkflows() ([]models.Workflow, error) {
 	rows, err := database.Query(queries.GetWorkflowsQuery)
 
 	if err != nil {
-		log.Fatalf("The error during getting all workflows from DB: %s", err)
+		log.Printf("The error during getting all workflows from DB: %s", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -31,7 +31,7 @@ func GetWorkflowById(workflowId string) (models.Workflow, error) {
 	database := db.GetDatabaseInstance()
 	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
 	if err != nil {
-		log.Fatalf("The error during getting workflow by id %s from DB: %s", workflowId, err)
+		log.Printf("The error during getting workflow by id %s from DB: %s", workflowId, err)
 		return models.Workflow{}, err
 	}
 	defer func(row *sql.Rows) {
