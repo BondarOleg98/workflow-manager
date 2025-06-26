@@ -1,11 +1,11 @@
 #!/bin/bash
 
 logInfo() {
-  echo -e "\e[32mINFO [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m"
+  printf '%b' "\e[32mINFO [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
 
 logWarn() {
-  echo -e "\e[33mWARN [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m"
+  printf '%b' "\e[33mWARN [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
 
 logInfo "Starting script"
