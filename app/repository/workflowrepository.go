@@ -40,5 +40,11 @@ func GetWorkflowById(workflowId string) (models.Workflow, error) {
 			log.Fatal("The error during closing the reader of the database")
 		}
 	}(row)
+	isSqlResultEmpty := row.Next()
+	if !isSqlResultEmpty {
+		log.Printf("The error during getting workflow by id %s from DB: %s",
+			workflowId, sql.ErrNoRows)
+		return models.Workflow{}, sql.ErrNoRows
+	}
 	return mapper.WorkflowMapped(row)
 }

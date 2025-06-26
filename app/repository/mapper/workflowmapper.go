@@ -22,7 +22,6 @@ func WorkflowsListMapped(rows *sql.Rows) ([]models.Workflow, error) {
 func WorkflowMapped(row *sql.Rows) (models.Workflow, error) {
 	var err error
 	workflow := models.Workflow{}
-	row.Next()
 	if err = row.Scan(&workflow.WorkflowId, &workflow.Name, &workflow.CreatedAt, &workflow.UpdatedAt); err != nil {
 		log.Printf("The error during mapping data from DB %s", err)
 		return workflow, err
