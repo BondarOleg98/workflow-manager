@@ -21,3 +21,7 @@ func GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	}
 	return
 }
+
+func RemoveWorkflowById(workflowId string) {
+	repository.RemoveWorkflowById(workflowId)
+}

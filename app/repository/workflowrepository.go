@@ -48,3 +48,12 @@ func GetWorkflowById(workflowId string) (models.Workflow, error) {
 	}
 	return mapper.WorkflowMapped(row)
 }
+
+func RemoveWorkflowById(workflowId string) {
+	database := db.GetDatabaseInstance()
+	result, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
+	log.Print(err)
+	rowsAffected, _ := result.RowsAffected()
+	log.Print(rowsAffected)
+
+}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 	"workflowmanager/app/services"
 )
 
@@ -40,7 +39,13 @@ func getWorkflowByIdController(
 	}
 }
 
+func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *http.Request) {
+	workflowId := request.PathValue("workflowId")
+	services.RemoveWorkflowById(workflowId)
+}
+
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
 	http.HandleFunc("GET /api/workflows", getWorkflowsController)
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
+	http.HandleFunc("DELETE /api/workflows/{workflowId}", removeWorkflowByIdController)
 }
