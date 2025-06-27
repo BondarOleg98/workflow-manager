@@ -27,8 +27,7 @@ func getWorkflowsController(
 
 func getWorkflowByIdController(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	workflowUrl := strings.TrimPrefix(request.URL.Path, "/workflows/")
-	workflowId := strings.Split(workflowUrl, "/")[3]
+	workflowId := request.PathValue("workflowId")
 	workflow, err := services.GetWorkflowById(workflowId)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
@@ -42,6 +41,6 @@ func getWorkflowByIdController(
 }
 
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
-	http.HandleFunc("/api/workflows", getWorkflowsController)
-	http.HandleFunc("/api/workflows/", getWorkflowByIdController)
+	http.HandleFunc("GET /api/workflows", getWorkflowsController)
+	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
 }
