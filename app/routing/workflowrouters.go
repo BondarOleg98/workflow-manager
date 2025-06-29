@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"strings"
 	"workflowmanager/app/services"
 )
 
@@ -19,6 +18,7 @@ func getWorkflowsController(
 	} else {
 		encodedWorkflows, _ := json.Marshal(workflows)
 		_, err = io.Writer.Write(responseWriter, encodedWorkflows)
+		responseWriter.WriteHeader(http.StatusOK)
 		if err != nil {
 			responseWriter.WriteHeader(http.StatusInternalServerError)
 		}
@@ -27,14 +27,14 @@ func getWorkflowsController(
 
 func getWorkflowByIdController(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	workflowUrl := strings.TrimPrefix(request.URL.Path, "/workflows/")
-	workflowId := strings.Split(workflowUrl, "/")[3]
+	workflowId := request.PathValue("workflowId")
 	workflow, err := services.GetWorkflowById(workflowId)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {
 		encodedWorkflow, _ := json.Marshal(workflow)
 		_, err = io.Writer.Write(responseWriter, encodedWorkflow)
+		responseWriter.WriteHeader(http.StatusOK)
 		if err != nil {
 			responseWriter.WriteHeader(http.StatusInternalServerError)
 		}
@@ -42,6 +42,7 @@ func getWorkflowByIdController(
 }
 
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
-	http.HandleFunc("/api/workflows", getWorkflowsController)
-	http.HandleFunc("/api/workflows/", getWorkflowByIdController)
+	http.HandleFunc("GET /api/workflows", getWorkflowsController)
+	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
+	http.HandleFunc("DELETE /api/workflows/{workflowId}", removeWorkflowByIdController)
 }
