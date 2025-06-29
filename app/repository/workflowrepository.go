@@ -14,7 +14,7 @@ func GetWorkflows() ([]models.Workflow, error) {
 	rows, err := database.Query(queries.GetWorkflowsQuery)
 
 	if err != nil {
-		log.Fatalf("The error during getting all worflows from DB: %s", err)
+		log.Printf("The error during getting all workflows from DB: %s", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -23,6 +23,37 @@ func GetWorkflows() ([]models.Workflow, error) {
 			log.Fatal("The error during closing the reader of the database")
 		}
 	}(rows)
-	log.Printf("Worflows were retrieved from DB")
-	return mapper.WorkflowMapped(rows), nil
+
+	return mapper.WorkflowsListMapped(rows)
+}
+
+func GetWorkflowById(workflowId string) (models.Workflow, error) {
+	database := db.GetDatabaseInstance()
+	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during getting workflow by id %s from DB: %s", workflowId, err)
+		return models.Workflow{}, err
+	}
+	defer func(row *sql.Rows) {
+		err := row.Close()
+		if err != nil {
+			log.Fatal("The error during closing the reader of the database")
+		}
+	}(row)
+	isSqlResultEmpty := row.Next()
+	if !isSqlResultEmpty {
+		log.Printf("The error during getting workflow by id %s from DB: %s",
+			workflowId, sql.ErrNoRows)
+		return models.Workflow{}, sql.ErrNoRows
+	}
+	return mapper.WorkflowMapped(row)
+}
+
+func RemoveWorkflowById(workflowId string) {
+	database := db.GetDatabaseInstance()
+	result, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
+	log.Print(err)
+	rowsAffected, _ := result.RowsAffected()
+	log.Print(rowsAffected)
+
 }
