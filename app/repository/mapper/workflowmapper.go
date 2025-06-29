@@ -3,28 +3,28 @@ package mapper
 import (
 	"database/sql"
 	"log"
+	"time"
 	"workflowmanager/app/models"
 )
 
-func WorkflowsListMapped(rows *sql.Rows) ([]models.Workflow, error) {
+func WorkflowMapped(rows *sql.Rows) []models.Workflow {
 	var workflows []models.Workflow
 	for rows.Next() {
-		workflow := models.Workflow{}
-		if err := rows.Scan(&workflow.WorkflowId, &workflow.Name, &workflow.CreatedAt, &workflow.UpdatedAt); err != nil {
+		var (
+			workflowId string
+			name       string
+			createdAt  time.Time
+			updatedAt  time.Time
+		)
+		if err := rows.Scan(&workflowId, &name, &createdAt, &updatedAt); err != nil {
 			log.Fatalf("The error during mapping data from DB %s", err)
-			return nil, err
 		}
-		workflows = append(workflows, workflow)
+		workflows = append(workflows, models.Workflow{
+			WorkflowId: workflowId,
+			Name:       name,
+			CreatedAt:  createdAt,
+			UpdatedAt:  updatedAt,
+		})
 	}
-	return workflows, nil
-}
-
-func WorkflowMapped(row *sql.Rows) (models.Workflow, error) {
-	var err error
-	workflow := models.Workflow{}
-	if err = row.Scan(&workflow.WorkflowId, &workflow.Name, &workflow.CreatedAt, &workflow.UpdatedAt); err != nil {
-		log.Printf("The error during mapping data from DB %s", err)
-		return workflow, err
-	}
-	return workflow, err
+	return workflows
 }
