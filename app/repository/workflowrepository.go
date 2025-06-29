@@ -48,3 +48,54 @@ func GetWorkflowById(workflowId string) (models.Workflow, error) {
 	}
 	return mapper.WorkflowMapped(row)
 }
+
+func removeTasksByWorkflowId(workflowId string) (int64, error) {
+	database := db.GetDatabaseInstance()
+	_, err := removeActionsByWorkflowId(workflowId)
+	if err != nil {
+		return 0, err
+	}
+	resultDeletedTasks, err := database.Exec(queries.RemoveTasksByWorkflowIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during deleting tasks by workflow id %s from DB: %s",
+			workflowId, err)
+		return 0, err
+	}
+	rowsTasksAffected, _ := resultDeletedTasks.RowsAffected()
+	log.Printf("Tasks by workflowId - %s were removed %d", workflowId, rowsTasksAffected)
+	return rowsTasksAffected, err
+}
+
+func removeActionsByWorkflowId(workflowId string) (int64, error) {
+	database := db.GetDatabaseInstance()
+	resultDeletedActions, err := database.Exec(queries.RemoveActionsByTaskIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during deleting actions by workflow id %s from DB: %s",
+			workflowId, err)
+		return 0, err
+	}
+	rowsActionsAffected, _ := resultDeletedActions.RowsAffected()
+	log.Printf("Actions by workflowId - %s were removed %d", workflowId, rowsActionsAffected)
+	return rowsActionsAffected, err
+}
+
+func RemoveWorkflowById(workflowId string) (int64, error) {
+	database := db.GetDatabaseInstance()
+	_, err := removeTasksByWorkflowId(workflowId)
+	if err != nil {
+		return 0, err
+	}
+	resultDeletedWorkflows, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during deleting workflows by workflow id %s from DB: %s",
+			workflowId, err)
+		return 0, err
+	}
+	rowsWorkflowsAffected, _ := resultDeletedWorkflows.RowsAffected()
+	return rowsWorkflowsAffected, err
+}
+
+// TODO: added a logic to check the existed entity
+//func checkExistedWorkflow(workflowId string) {
+//
+//}
