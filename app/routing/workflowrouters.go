@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"workflowmanager/app/models"
 	"workflowmanager/app/services"
 )
 
@@ -51,8 +52,18 @@ func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *h
 	}
 }
 
+func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
+    requestBody, _ := io.ReadAll(request.Body)
+    workflow := models.Workflow{}
+    err := json.Unmarshal(requestBody, &workflow)
+    if err != nil {
+        responseWriter.WriteHeader(http.StatusBadRequest)
+    }
+}
+
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
 	http.HandleFunc("GET /api/workflows", getWorkflowsController)
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
-	http.HandleFunc("DELETE /api/workflows/{workflowId}", removeWorkflowByIdController)
+	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
+	http.HandleFunc("POST /api/workflow/save", saveWorkflow)
 }
