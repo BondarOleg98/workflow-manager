@@ -43,12 +43,18 @@ func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *h
 }
 
 func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
-    requestBody, _ := io.ReadAll(request.Body)
-    workflow := models.Workflow{}
-    err := json.Unmarshal(requestBody, &workflow)
-    if err != nil {
-        responseWriter.WriteHeader(http.StatusBadRequest)
-    }
+	requestBody, _ := io.ReadAll(request.Body)
+	workflow := models.Workflow{}
+	err := json.Unmarshal(requestBody, &workflow)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusBadRequest)
+	}
+	err = services.SaveWorkflow(workflow)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+	} else {
+		responseWriter.WriteHeader(http.StatusCreated)
+	}
 }
 
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
