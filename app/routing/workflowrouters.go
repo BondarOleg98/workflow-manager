@@ -17,12 +17,7 @@ func getWorkflowsController(
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	} else {
-		encodedWorkflows, _ := json.Marshal(workflows)
-		_, err = io.Writer.Write(responseWriter, encodedWorkflows)
-		responseWriter.WriteHeader(http.StatusOK)
-		if err != nil {
-			responseWriter.WriteHeader(http.StatusInternalServerError)
-		}
+		responseHandler(workflows, responseWriter)
 	}
 }
 
@@ -33,12 +28,7 @@ func getWorkflowByIdController(
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {
-		encodedWorkflow, _ := json.Marshal(workflow)
-		_, err = io.Writer.Write(responseWriter, encodedWorkflow)
-		responseWriter.WriteHeader(http.StatusOK)
-		if err != nil {
-			responseWriter.WriteHeader(http.StatusInternalServerError)
-		}
+		responseHandler(workflow, responseWriter)
 	}
 }
 
@@ -66,4 +56,5 @@ func (workflowEndpoints WorkflowEndpoints) BaseController() {
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
 	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
 	http.HandleFunc("POST /api/workflow/save", saveWorkflow)
+	http.HandleFunc("/", notFoundHandler)
 }
