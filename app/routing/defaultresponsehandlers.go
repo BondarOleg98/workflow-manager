@@ -16,6 +16,9 @@ func responseHandler(data any, responseWriter http.ResponseWriter) {
 	} else {
 		responseWriter.WriteHeader(http.StatusOK)
 		_, err = io.Writer.Write(responseWriter, responseData)
+		if err != nil {
+			responseWriter.WriteHeader(http.StatusInternalServerError)
+		}
 	}
 }
 
