@@ -34,7 +34,7 @@ func getWorkflowByIdController(
 
 func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *http.Request) {
 	workflowId := request.PathValue("workflowId")
-	_, err := services.RemoveWorkflowById(workflowId)
+	err := services.RemoveWorkflowById(workflowId)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {

@@ -22,11 +22,11 @@ func GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	return
 }
 
-func RemoveWorkflowById(workflowId string) (bool, error) {
+func RemoveWorkflowById(workflowId string) error {
 	rowsWorkflowsAffected, err := repository.RemoveWorkflowById(workflowId)
 	if err == nil {
 		log.Printf("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
-		return true, nil
+		return nil
 	}
-	return false, err
+	return err
 }
