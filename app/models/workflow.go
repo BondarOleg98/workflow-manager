@@ -1,10 +1,13 @@
 package models
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"time"
+)
 
 type Workflow struct {
-	WorkflowId string
-	Name       string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	WorkflowId uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }

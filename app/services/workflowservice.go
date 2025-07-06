@@ -1,7 +1,9 @@
 package services
 
 import (
+	"github.com/google/uuid"
 	"log"
+	"time"
 	"workflowmanager/app/models"
 	"workflowmanager/app/repository"
 )
@@ -22,6 +24,27 @@ func GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	return
 }
 
-func RemoveWorkflowById(workflowId string) {
-	repository.RemoveWorkflowById(workflowId)
+func RemoveWorkflowById(workflowId string) error {
+	rowsWorkflowsAffected, err := repository.RemoveWorkflowById(workflowId)
+	if err == nil {
+		log.Printf("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
+		return nil
+	}
+	return err
+}
+
+func SaveWorkflow(workflow models.Workflow) error {
+	workflow.CreatedAt = time.Now()
+	workflow.UpdatedAt = workflow.CreatedAt
+	workflowId, err := uuid.NewUUID()
+	if err != nil {
+		return err
+	}
+	workflow.WorkflowId = workflowId
+	err = repository.SaveWorkflow(workflow)
+	if err != nil {
+		return err
+	}
+	log.Printf("The workflow with id: %s was created", workflowId)
+	return nil
 }

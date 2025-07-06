@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"workflowmanager/app/models"
 	"workflowmanager/app/services"
 )
 
@@ -16,11 +17,7 @@ func getWorkflowsController(
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	} else {
-		encodedWorkflows, _ := json.Marshal(workflows)
-		_, err = io.Writer.Write(responseWriter, encodedWorkflows)
-		if err != nil {
-			responseWriter.WriteHeader(http.StatusInternalServerError)
-		}
+		responseHandler(workflows, responseWriter)
 	}
 }
 
@@ -31,21 +28,39 @@ func getWorkflowByIdController(
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {
-		encodedWorkflow, _ := json.Marshal(workflow)
-		_, err = io.Writer.Write(responseWriter, encodedWorkflow)
-		if err != nil {
-			responseWriter.WriteHeader(http.StatusInternalServerError)
-		}
+		responseHandler(workflow, responseWriter)
 	}
 }
 
 func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *http.Request) {
 	workflowId := request.PathValue("workflowId")
-	services.RemoveWorkflowById(workflowId)
+	err := services.RemoveWorkflowById(workflowId)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusNotFound)
+	} else {
+		responseWriter.WriteHeader(http.StatusAccepted)
+	}
+}
+
+func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
+	requestBody, _ := io.ReadAll(request.Body)
+	workflow := models.Workflow{}
+	err := json.Unmarshal(requestBody, &workflow)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusBadRequest)
+	}
+	err = services.SaveWorkflow(workflow)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+	} else {
+		responseWriter.WriteHeader(http.StatusCreated)
+	}
 }
 
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
 	http.HandleFunc("GET /api/workflows", getWorkflowsController)
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
-	http.HandleFunc("DELETE /api/workflows/{workflowId}", removeWorkflowByIdController)
+	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
+	http.HandleFunc("POST /api/workflow/save", saveWorkflow)
+	http.HandleFunc("/", notFoundHandler)
 }
