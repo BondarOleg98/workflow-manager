@@ -98,7 +98,7 @@ func RemoveWorkflowById(workflowId string) (int64, error) {
 func SaveWorkflow(workflow models.Workflow) error {
 	database := db.GetDatabaseInstance()
 	_, err := database.Exec(queries.InsertWorkflowQuery,
-		workflow.WorkflowId, workflow.Name, workflow.UpdatedAt, workflow.CreatedAt)
+		workflow.WorkflowId.String(), workflow.Name, workflow.UpdatedAt, workflow.CreatedAt)
 	if err != nil {
 		log.Printf("The error during saving the workflow into DB: %s", err)
 		return err
