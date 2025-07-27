@@ -9,9 +9,16 @@ import (
 	"workflowmanager/app/repository/mapper"
 )
 
-func GetWorkflows() ([]models.Workflow, error) {
+func GetWorkflowsByPagination(cursor string, pageSize int) ([]models.Workflow, error) {
 	database := db.GetDatabaseInstance()
-	rows, err := database.Query(queries.GetWorkflowsQuery)
+	var rows *sql.Rows
+	var err error
+
+	if cursor != "" {
+		rows, err = database.Query(queries.GetWorkflowsByPaginationQuery, cursor, pageSize)
+	} else {
+		rows, err = database.Query(queries.GetWorkflowsByPaginationWithoutCursorQuery, pageSize)
+	}
 
 	if err != nil {
 		log.Printf("The error during getting all workflows from DB: %s", err)

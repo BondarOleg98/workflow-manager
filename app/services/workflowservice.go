@@ -8,8 +8,8 @@ import (
 	"workflowmanager/app/repository"
 )
 
-func GetWorkflows() (workflows []models.Workflow, err error) {
-	workflows, err = repository.GetWorkflows()
+func GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
+	workflows, err = repository.GetWorkflowsByPagination(cursor, pageSize)
 	if err == nil {
 		log.Printf("Workflows were retrieved")
 	}
