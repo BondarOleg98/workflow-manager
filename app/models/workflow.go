@@ -1,12 +1,12 @@
 package models
 
 import (
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"time"
 )
 
 type Workflow struct {
-	WorkflowId uuid.UUID `json:"id"`
+	WorkflowId ulid.ULID `json:"id"`
 	Name       string    `json:"name"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`

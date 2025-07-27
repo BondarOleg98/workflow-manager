@@ -1,4 +1,3 @@
--- DB version 1.0 schema
 DROP TABLE IF EXISTS workflows CASCADE;
 
 DROP TABLE IF EXISTS tasks CASCADE;

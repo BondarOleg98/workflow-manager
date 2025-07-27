@@ -11,13 +11,19 @@ import (
 type WorkflowEndpoints struct {
 }
 
-func getWorkflowsController(
-	responseWriter http.ResponseWriter, _ *http.Request) {
-	workflows, err := services.GetWorkflows()
+func getWorkflowsByPaginationController(
+	responseWriter http.ResponseWriter, request *http.Request) {
+	pageSize, err := parseRequestIntParam(request.URL.Query().Get("page_size"))
+	cursor := request.URL.Query().Get("cursor")
 	if err != nil {
-		responseWriter.WriteHeader(http.StatusInternalServerError)
+		responseWriter.WriteHeader(http.StatusBadRequest)
 	} else {
-		responseHandler(workflows, responseWriter)
+		workflows, err := services.GetWorkflowsByPagination(cursor, pageSize)
+		if err != nil {
+			responseWriter.WriteHeader(http.StatusInternalServerError)
+		} else {
+			responseHandler(workflows, responseWriter)
+		}
 	}
 }
 
@@ -58,7 +64,7 @@ func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
 }
 
 func (workflowEndpoints WorkflowEndpoints) BaseController() {
-	http.HandleFunc("GET /api/workflows", getWorkflowsController)
+	http.HandleFunc("GET /api/workflows", getWorkflowsByPaginationController)
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
 	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
 	http.HandleFunc("POST /api/workflow/save", saveWorkflow)

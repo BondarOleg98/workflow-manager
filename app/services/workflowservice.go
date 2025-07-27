@@ -1,15 +1,15 @@
 package services
 
 import (
-	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
 	"log"
 	"time"
 	"workflowmanager/app/models"
 	"workflowmanager/app/repository"
 )
 
-func GetWorkflows() (workflows []models.Workflow, err error) {
-	workflows, err = repository.GetWorkflows()
+func GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
+	workflows, err = repository.GetWorkflowsByPagination(cursor, pageSize)
 	if err == nil {
 		log.Printf("Workflows were retrieved")
 	}
@@ -36,12 +36,9 @@ func RemoveWorkflowById(workflowId string) error {
 func SaveWorkflow(workflow models.Workflow) error {
 	workflow.CreatedAt = time.Now()
 	workflow.UpdatedAt = workflow.CreatedAt
-	workflowId, err := uuid.NewUUID()
-	if err != nil {
-		return err
-	}
+	workflowId := ulid.Make()
 	workflow.WorkflowId = workflowId
-	err = repository.SaveWorkflow(workflow)
+	err := repository.SaveWorkflow(workflow)
 	if err != nil {
 		return err
 	}
