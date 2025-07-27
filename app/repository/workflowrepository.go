@@ -112,8 +112,3 @@ func SaveWorkflow(workflow models.Workflow) error {
 	}
 	return nil
 }
-
-// TODO: added a logic to check the existed entity
-//func checkExistedWorkflow(workflowId string) {
-//
-//}

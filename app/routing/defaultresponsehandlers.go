@@ -24,7 +24,7 @@ func responseHandler(data any, responseWriter http.ResponseWriter) {
 
 func notFoundHandler(responseWriter http.ResponseWriter, _ *http.Request) {
 	responseWriter.WriteHeader(http.StatusNotFound)
-	defaultNotFoundMessage := "The api request was not found"
+	const defaultNotFoundMessage string = "The api request was not found"
 	_, err := fmt.Fprint(responseWriter, defaultNotFoundMessage)
 	if err != nil {
 		log.Printf("%s", err.Error())
