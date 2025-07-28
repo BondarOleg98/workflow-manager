@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pg_scripts_path="app/db/postgres"
+
 logInfo() {
   printf '%b' "\e[32mINFO [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
@@ -23,5 +25,5 @@ logInfo "Removing the yq lib"
 rm yq
 
 logInfo "Run the init db script"
-chmod +x app/db/postgres/initdb.sh
-source app/db/postgres/initdb.sh
+chmod +x ${pg_scripts_path}/initdb.sh
+source ${pg_scripts_path}/initdb.sh

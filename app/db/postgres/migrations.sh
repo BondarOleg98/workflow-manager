@@ -31,4 +31,5 @@ logInfo "Removing the yq lib"
 rm yq
 
 logInfo "Run the db migrations script"
-runSQL "${POSTGRES_DB}" "-f" "migrations_uuid_to_ulid_v1.sql"
+# shellcheck disable=SC2154
+runSQL "${POSTGRES_DB}" "-f" "${pg_scripts_path}/${POSTGRES_MIGRATIONS_SCRIPT}"
