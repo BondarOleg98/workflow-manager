@@ -85,7 +85,10 @@ main() {
     fillDatabase
     checkDataSizeInTable "${tables[@]}"
   fi
+
   if ${POSTGRES_MIGRATIONS_ENABLED}; then
+    chmod +x "${pg_scripts_path}/migrations.sh"
+    source "${pg_scripts_path}/migrations.sh"
   fi
 }
 
