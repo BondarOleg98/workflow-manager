@@ -62,12 +62,13 @@ grantPrivileges() {
 }
 
 createTablesAndRelationships() {
-  runSQL "${POSTGRES_DB}" "-f" "app/db/postgres/create_schema.sql"
+  # shellcheck disable=SC2154
+  runSQL "${POSTGRES_DB}" "-f" "${pg_scripts_path}/${POSTGRES_SCHEMA_SCRIPT}"
 }
 
 fillDatabase() {
   logInfo "Filling DB"
-  runSQL "${POSTGRES_DB}" "-f" "app/db/postgres/fill_db.sql"
+  runSQL "${POSTGRES_DB}" "-f" "${pg_scripts_path}/${POSTGRES_FILL_TEST_DATA_SCRIPT}"
 }
 
 main() {
@@ -80,9 +81,14 @@ main() {
     createTablesAndRelationships
   fi
 
-  if ${POSTGRES_TEST_DATA}; then
+  if ${POSTGRES_TEST_DATA_ENABLED}; then
     fillDatabase
     checkDataSizeInTable "${tables[@]}"
+  fi
+
+  if ${POSTGRES_MIGRATIONS_ENABLED}; then
+    chmod +x "${pg_scripts_path}/migrations.sh"
+    source "${pg_scripts_path}/migrations.sh"
   fi
 }
 

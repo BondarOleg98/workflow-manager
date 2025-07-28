@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pg_scripts_path="app/db/postgres"
+
 logInfo() {
   printf '%b' "\e[32mINFO [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
@@ -8,20 +10,16 @@ logWarn() {
   printf '%b' "\e[33mWARN [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
 
-logInfo "Starting script"
+exportEnvs() {
+  logInfo "Exporting envs"
+  envs=$(awk 'NF {print $1 $2}' app/resources/env.yaml | sed 's/:/=/')
+  for env in ${envs}; do
+    eval "export ${env}"
+  done
+}
 
-logInfo "Downloading the yq lib"
-curl -L -o yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-chmod +x yq
-
-logInfo "Exporting envs"
-for env in $(./yq app/resources/env.yaml -os); do
-  eval "export ${env}"
-done
-
-logInfo "Removing the yq lib"
-rm yq
-
+logInfo "Starting the build script"
+exportEnvs
 logInfo "Run the init db script"
-chmod +x app/db/postgres/initdb.sh
-source app/db/postgres/initdb.sh
+chmod +x ${pg_scripts_path}/initdb.sh
+source ${pg_scripts_path}/initdb.sh
