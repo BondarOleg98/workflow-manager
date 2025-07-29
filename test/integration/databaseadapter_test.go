@@ -9,10 +9,10 @@ import (
 func TestInitExistedDatabaseInstance(test *testing.T) {
 	const driverName string = "postgres"
 	const connectionExistDBUrl string = "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable"
-	databaseActualName, err := getActualDatabaseNameThroughAdapter(driverName, connectionExistDBUrl)
-	databaseExpectedName, err := getExpectedDatabaseName(driverName, connectionExistDBUrl)
+	databaseActualName, _ := getActualDatabaseNameThroughAdapter(driverName, connectionExistDBUrl)
+	databaseExpectedName, _ := getExpectedDatabaseName(driverName, connectionExistDBUrl)
 	if databaseActualName != databaseExpectedName {
-		test.Errorf("the DBs are not equals: %s", err)
+		test.Errorf("the DBs are not equals")
 	}
 }
 
