@@ -1,17 +1,13 @@
 package util
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 )
 
-func LoadConfigs() error {
-	const nameResourcesDirectory string = "app/resources"
-	const configFileName string = "env.yaml"
-	configFile, err := readConfigFile(
-		fmt.Sprintf("%s/%s", nameResourcesDirectory, configFileName))
+func LoadConfigs(filePath string) error {
+	configFile, err := readConfigFile(filePath)
 	if err != nil {
 		log.Fatalf("Error during reading file: %s", err)
 		return err

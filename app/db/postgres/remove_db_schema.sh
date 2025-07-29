@@ -6,7 +6,7 @@ logInfo() {
 
 exportEnvs() {
   logInfo "Exporting envs"
-  envs=$(awk 'NF {print $1 $2}' ../../resources/env.yaml | sed 's/:/=/')
+  envs=$(awk 'NF {print $1 $2}' ../../resources/dev_env.yaml | sed 's/:/=/')
   for env in ${envs}; do
     eval "export ${env}"
   done

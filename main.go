@@ -15,7 +15,8 @@ import (
 func main() {
 	var err error
 	if checkIsProfileTypeDev() {
-		err = util.LoadConfigs()
+		const configFilePath string = "app/resources/dev_env.yaml"
+		err = util.LoadConfigs(configFilePath)
 	}
 	if err != nil {
 		return
