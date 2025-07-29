@@ -39,6 +39,7 @@ func getActualDatabaseNameThroughAdapter(driverName string, connectionUrl string
 	defer func(databaseActual *sql.DB) {
 		err := databaseActual.Close()
 		if err != nil {
+			return
 		}
 	}(databaseActual)
 	return databaseActualName, nil
@@ -54,6 +55,7 @@ func getExpectedDatabaseName(driverName string, connectionUrl string) (string, e
 	defer func(databaseExpected *sql.DB) {
 		err := databaseExpected.Close()
 		if err != nil {
+			return
 		}
 	}(databaseExpected)
 	return databaseExpectedName, nil
