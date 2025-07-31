@@ -2,6 +2,7 @@ package integration
 
 import (
 	"database/sql"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"workflowmanager/app/db"
 )
@@ -11,9 +12,8 @@ func TestInitExistedDatabaseInstance(test *testing.T) {
 	const connectionExistDBUrl string = "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable"
 	databaseActualName, _ := getActualDatabaseNameThroughAdapter(driverName, connectionExistDBUrl)
 	databaseExpectedName, _ := getExpectedDatabaseName(driverName, connectionExistDBUrl)
-	if databaseActualName != databaseExpectedName {
-		test.Errorf("the DBs are not equals")
-	}
+	assert.EqualValues(test, databaseActualName, databaseExpectedName,
+		"the DBs are not equals")
 }
 
 func TestInitNonExistedDatabaseInstance(test *testing.T) {
