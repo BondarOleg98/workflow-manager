@@ -25,6 +25,16 @@ func TestInitNonExistedDatabaseInstance(test *testing.T) {
 	}
 }
 
+func TestSeveralDatabaseInstances(test *testing.T) {
+	const driverName string = "postgres"
+	const firstConnectionDbUrl string = "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable"
+	const secondConnectionDbUrl string = "postgres://postgres:postgres@localhost/postgres?sslmode=disable"
+	firstDatabaseActualName, _ := getActualDatabaseNameThroughAdapter(driverName, firstConnectionDbUrl)
+	secondDatabaseActualName, _ := getActualDatabaseNameThroughAdapter(driverName, secondConnectionDbUrl)
+	assert.Equal(test, "workflow_manager", firstDatabaseActualName)
+	assert.Equal(test, "postgres", secondDatabaseActualName)
+}
+
 func getActualDatabaseNameThroughAdapter(driverName string, connectionUrl string) (string, error) {
 	var databaseActualName string
 	pool := db.Pool{
