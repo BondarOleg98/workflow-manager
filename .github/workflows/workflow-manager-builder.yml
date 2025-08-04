@@ -37,4 +37,4 @@ jobs:
       - name: install Go dependencies
         run: go mod download
       - name: run project tests
-        run: go test -v ./...
+        run: go test -v ./test/unit

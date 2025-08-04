@@ -30,10 +30,10 @@ func GetDatabaseInstance() *sql.DB {
 	return database
 }
 
-//func CloseDatabaseConnection() error {
-//	err := database.Close()
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
+func CloseDatabaseConnection() error {
+	err := database.Close()
+	if err != nil {
+		return err
+	}
+	return nil
+}
