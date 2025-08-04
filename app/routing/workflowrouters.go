@@ -3,13 +3,11 @@ package routing
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"workflowmanager/app/models"
 	"workflowmanager/app/services"
 )
-
-type WorkflowEndpoints struct {
-}
 
 func getWorkflowsByPaginationController(
 	responseWriter http.ResponseWriter, request *http.Request) {
@@ -34,6 +32,7 @@ func getWorkflowByIdController(
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {
+		responseWriter.WriteHeader(http.StatusOK)
 		responseHandler(workflow, responseWriter)
 	}
 }
@@ -63,7 +62,8 @@ func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
 	}
 }
 
-func (workflowEndpoints WorkflowEndpoints) BaseController() {
+func InitBaseController() {
+	log.Println("Init base app's controllers")
 	http.HandleFunc("GET /api/workflows", getWorkflowsByPaginationController)
 	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
 	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
