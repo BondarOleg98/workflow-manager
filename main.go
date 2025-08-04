@@ -20,12 +20,17 @@ func main() {
 	if err != nil {
 		return
 	}
-	pgPool := db.CreatePgPool()
-	go db.InitDatabaseInstance(pgPool)
+	startDatabaseInstance()
+	route.InitBaseController()
+	startServer()
+}
 
-	log.Println("Init base app's controllers")
-	route.WorkflowEndpoints{}.BaseController()
+func startDatabaseInstance() {
+	go db.InitDatabaseInstance(db.CreatePgPool())
+}
 
+func startServer() {
+	var err error
 	address := fmt.Sprintf(":%s", os.Getenv("SERVICE_PORT"))
 	log.Printf("The app has started on the address %s", address)
 	err = http.ListenAndServe(address, nil)
