@@ -24,6 +24,7 @@ func main() {
 	startDatabaseInstance()
 	route.InitBaseController()
 	startServer()
+	defer db.CloseDatabaseConnection()
 }
 
 func startDatabaseInstance() {
