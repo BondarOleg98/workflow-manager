@@ -74,13 +74,13 @@ func testRemoveWorkflowById(test *testing.T, removingWorkflow models.Workflow) {
 
 func assertEqualNil(test *testing.T, err error, message string) {
 	if err != nil {
-		test.Errorf(message)
+		test.Errorf("%s", message)
 	}
 }
 
 func assertEqualNotNil(test *testing.T, err error, message string) {
 	if err == nil {
-		test.Errorf(message)
+		test.Errorf("%s", message)
 	}
 }
 
@@ -89,6 +89,6 @@ func assertEqual(test *testing.T, expected any, actual any, message string) {
 		test.Errorf("the expected value and actual value have the different types")
 	}
 	if expected != actual {
-		test.Errorf(message)
+		test.Errorf("%s", message)
 	}
 }
