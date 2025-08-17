@@ -1,57 +1,94 @@
 package integration
 
 import (
-	"github.com/stretchr/testify/assert"
+	"reflect"
 	"testing"
-	"workflowmanager/app/db"
 	"workflowmanager/app/models"
 	"workflowmanager/app/services"
 )
 
 // TODO: need to change according to pagination using filter
-func TestCrdOperations(test *testing.T) {
-	db.InitDatabaseInstance(db.Pool{
-		DriverName:    "postgres",
-		ConnectionUrl: "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable",
-	})
-	expectedFirstWorkflow := models.Workflow{
-		Name: "first_test",
+func testCrdOperations(test *testing.T) {
+	expectedWorkflows := []models.Workflow{
+		{Name: "first_test"},
+		{Name: "second_test"},
 	}
-	expectedSecondWorkflow := models.Workflow{
-		Name: "second_test",
+	for _, workflow := range expectedWorkflows {
+		testSaveWorkflow(test, workflow)
 	}
-	err := services.SaveWorkflow(expectedFirstWorkflow)
-	assert.Nil(test, err, "the error during saving the first workflow")
-	err = services.SaveWorkflow(expectedSecondWorkflow)
-	assert.Nil(test, err, "the error during saving the second workflow")
-
 	pageSizeSeveralElements := 2
-	gotSeveralWorkflowsByPaginationWithoutCursor, err :=
+	testGetWorkflowsByPaginationWithoutCursor(test, pageSizeSeveralElements, expectedWorkflows)
+	pageSizeOneElement := 1
+	testGetWorkflowsByPaginationWithoutCursor(test, pageSizeOneElement, expectedWorkflows)
+	gotWorkflowsByPaginationWithoutCursor, err :=
 		services.GetWorkflowsByPagination("", pageSizeSeveralElements)
-	assert.Nil(test, err, "the error during getting two workflows by pagination")
-	assert.Equal(test, len(gotSeveralWorkflowsByPaginationWithoutCursor), pageSizeSeveralElements)
-
-	pageSizeElement := 1
-	gotOneWorkflowByPaginationWithoutCursor, err :=
-		services.GetWorkflowsByPagination("", pageSizeElement)
-	assert.Nil(test, err, "the error during getting one workflow by pagination")
-	assert.Equal(test, len(gotOneWorkflowByPaginationWithoutCursor), pageSizeElement)
-
-	var gotFirstWorkflow models.Workflow
-	for _, workflow := range gotOneWorkflowByPaginationWithoutCursor {
-		gotFirstWorkflow, err = services.GetWorkflowById(workflow.WorkflowId.String())
-		assert.Nil(test, err, "the error during getting one workflow by id")
+	if err != nil {
+		test.Errorf("the issue during getting workflows without cursor")
 	}
+	secondWorkflowIndex := 1
+	cursorSecondElement := gotWorkflowsByPaginationWithoutCursor[secondWorkflowIndex].WorkflowId
+	testGetWorkflowsByPaginationUsingCursor(test,
+		cursorSecondElement.String(), pageSizeOneElement, expectedWorkflows[secondWorkflowIndex:])
+	for _, workflow := range gotWorkflowsByPaginationWithoutCursor {
+		testRemoveWorkflowById(test, workflow)
+	}
+}
 
-	gotSeveralWorkflowsByPaginationWithoutCursor, err =
-		services.GetWorkflowsByPagination(gotFirstWorkflow.WorkflowId.String(), pageSizeSeveralElements)
-	assert.Nil(test, err, "the error during getting two workflows by pagination")
-	assert.Equal(test, len(gotSeveralWorkflowsByPaginationWithoutCursor), pageSizeSeveralElements)
+func testSaveWorkflow(test *testing.T, workflow models.Workflow) {
+	err := services.SaveWorkflow(workflow)
+	assertEqualNil(test, err, "the error during saving the workflow")
+}
 
-	for _, workflow := range gotSeveralWorkflowsByPaginationWithoutCursor {
-		err = services.RemoveWorkflowById(workflow.WorkflowId.String())
-		assert.Nil(test, err, "the error during removing the workflow by id")
-		_, err = services.GetWorkflowById(workflow.WorkflowId.String())
-		assert.NotNil(test, err, "the first workflow by id was not deleted")
+func testGetWorkflowsByPaginationWithoutCursor(test *testing.T,
+	pageSizeElements int, expectedWorkflows []models.Workflow) {
+	gotWorkflowsByPaginationWithoutCursor, err :=
+		services.GetWorkflowsByPagination("", pageSizeElements)
+	assertEqualNil(test, err, "the error during getting workflows by pagination without cursor")
+	assertEqual(test, len(gotWorkflowsByPaginationWithoutCursor), pageSizeElements,
+		"the count of the workflows are different after getting by pagination without cursor")
+	for indexWorkflow, workflow := range gotWorkflowsByPaginationWithoutCursor {
+		assertEqual(test, expectedWorkflows[indexWorkflow].Name, workflow.Name,
+			"the data between expected and actual workflows are different")
+	}
+}
+
+func testGetWorkflowsByPaginationUsingCursor(test *testing.T,
+	cursor string, pageSizeElements int, expectedWorkflows []models.Workflow) {
+	gotWorkFLowByPaginationUsingCursor, err :=
+		services.GetWorkflowsByPagination(cursor, pageSizeElements)
+	assertEqualNil(test, err, "the error during getting workflows by pagination using cursor")
+	assertEqual(test, len(gotWorkFLowByPaginationUsingCursor), pageSizeElements,
+		"the count of the workflows are different after getting by pagination using cursor")
+	for indexWorkflow, workflow := range gotWorkFLowByPaginationUsingCursor {
+		assertEqual(test, expectedWorkflows[indexWorkflow].Name, workflow.Name,
+			"the data between expected and actual workflows are different")
+	}
+}
+
+func testRemoveWorkflowById(test *testing.T, removingWorkflow models.Workflow) {
+	err := services.RemoveWorkflowById(removingWorkflow.WorkflowId.String())
+	assertEqualNil(test, err, "the error during removing the workflow by id")
+	_, err = services.GetWorkflowById(removingWorkflow.WorkflowId.String())
+	assertEqualNotNil(test, err, "the workflow by id was not deleted")
+}
+
+func assertEqualNil(test *testing.T, err error, message string) {
+	if err != nil {
+		test.Errorf(message)
+	}
+}
+
+func assertEqualNotNil(test *testing.T, err error, message string) {
+	if err == nil {
+		test.Errorf(message)
+	}
+}
+
+func assertEqual(test *testing.T, expected any, actual any, message string) {
+	if reflect.TypeOf(expected) != reflect.TypeOf(actual) {
+		test.Errorf("the expected value and actual value have the different types")
+	}
+	if expected != actual {
+		test.Errorf(message)
 	}
 }
