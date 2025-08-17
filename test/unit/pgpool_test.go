@@ -1,7 +1,6 @@
 package unit
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"workflowmanager/app/db"
 	"workflowmanager/app/util"
@@ -18,6 +17,7 @@ func TestCreateNonSslPgPool(test *testing.T) {
 		DriverName:    "postgres",
 		ConnectionUrl: "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable",
 	}
-	assert.Equal(test, expectedPgPool, actualPgPool,
-		"the expected pool and the actual pool are not equal")
+	if expectedPgPool != actualPgPool {
+		test.Errorf("the expected pool and the actual pool are not equal")
+	}
 }

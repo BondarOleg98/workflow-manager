@@ -7,8 +7,10 @@ import (
 	"sync"
 )
 
-var onceInitDatabase sync.Once
-var database *sql.DB
+var (
+	database         *sql.DB
+	onceInitDatabase sync.Once
+)
 
 func InitDatabaseInstance(pool Pool) *sql.DB {
 	if database == nil {
@@ -17,11 +19,11 @@ func InitDatabaseInstance(pool Pool) *sql.DB {
 				var err error
 				database, err = sql.Open(pool.DriverName, pool.ConnectionUrl)
 				if err != nil {
-					log.Fatalf("The error during initialization DB's instance: %s", err)
+					log.Fatalf("The error during initialization DB's instance: %v", err)
 				}
+				log.Println("The DB's instance was initialized")
 			})
 	}
-	log.Println("The DB's instance was initialized")
 	return database
 }
 
@@ -30,10 +32,12 @@ func GetDatabaseInstance() *sql.DB {
 	return database
 }
 
-func CloseDatabaseConnection() error {
-	err := database.Close()
-	if err != nil {
-		return err
+func CloseDatabaseConnection() {
+	if database != nil {
+		if err := database.Close(); err != nil {
+			log.Printf("The error during closing DB's instance: %v", err)
+		} else {
+			database = nil
+		}
 	}
-	return nil
 }

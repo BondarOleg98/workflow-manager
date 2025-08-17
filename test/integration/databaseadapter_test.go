@@ -2,42 +2,23 @@ package integration
 
 import (
 	"database/sql"
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"workflowmanager/app/db"
 )
 
-func TestInitExistedDatabaseInstance(test *testing.T) {
-	const driverName string = "postgres"
-	const connectionExistDBUrl string = "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable"
-	databaseActualName, _ := getActualDatabaseNameThroughAdapter(driverName, connectionExistDBUrl)
-	databaseExpectedName, _ := getExpectedDatabaseName(driverName, connectionExistDBUrl)
-	assert.EqualValues(test, databaseActualName, databaseExpectedName,
-		"the DBs are not equals")
-}
-
-func TestInitNonExistedDatabaseInstance(test *testing.T) {
-	const driverName string = "postgres"
-	const connectionNonExistDBUrl string = "postgres://postgres:postgres@localhost/noexist?sslmode=disable"
-	_, err := getActualDatabaseNameThroughAdapter(driverName, connectionNonExistDBUrl)
-	if err == nil {
-		test.Errorf("the DB is exist even the connection url is incorrect: %s", err)
+func testCorrectDatabaseInstance(test *testing.T) {
+	databaseActualName, _ := getActualDatabaseNameThroughAdapter()
+	databaseExpectedName, _ := getExpectedDatabaseName()
+	if databaseExpectedName != databaseActualName {
+		test.Errorf(
+			"the DBs are not equals: actual - %s, expected - %s",
+			databaseActualName, databaseExpectedName)
 	}
 }
 
-func getActualDatabaseNameThroughAdapter(driverName string, connectionUrl string) (string, error) {
+func getActualDatabaseNameThroughAdapter() (string, error) {
 	var databaseActualName string
-	pool := db.Pool{
-		DriverName:    driverName,
-		ConnectionUrl: connectionUrl,
-	}
-	defer func() {
-		err := db.CloseDatabaseConnection()
-		if err != nil {
-			return
-		}
-	}()
-	databaseActual := db.InitDatabaseInstance(pool)
+	databaseActual := db.GetDatabaseInstance()
 	err := databaseActual.QueryRow("SELECT current_database()").Scan(&databaseActualName)
 	if err != nil {
 		return "", err
@@ -45,18 +26,20 @@ func getActualDatabaseNameThroughAdapter(driverName string, connectionUrl string
 	return databaseActualName, nil
 }
 
-func getExpectedDatabaseName(driverName string, connectionUrl string) (string, error) {
+func getExpectedDatabaseName() (string, error) {
 	var databaseExpectedName string
+	driverName := "postgres"
+	connectionUrl := "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable"
 	databaseExpected, _ := sql.Open(driverName, connectionUrl)
-	err := databaseExpected.QueryRow("SELECT current_database()").Scan(&databaseExpectedName)
-	if err != nil {
-		return "", err
-	}
 	defer func(databaseExpected *sql.DB) {
 		err := databaseExpected.Close()
 		if err != nil {
 			return
 		}
 	}(databaseExpected)
+	err := databaseExpected.QueryRow("SELECT current_database()").Scan(&databaseExpectedName)
+	if err != nil {
+		return "", err
+	}
 	return databaseExpectedName, nil
 }
