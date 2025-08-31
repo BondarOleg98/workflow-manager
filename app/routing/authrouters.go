@@ -12,6 +12,12 @@ type AuthHandler struct {
 	authService *services.AuthService
 }
 
+func NewAuthHandler(authService *services.AuthService) *AuthHandler {
+	return &AuthHandler{
+		authService: authService,
+	}
+}
+
 func (authHandler *AuthHandler) RegisterController(responseWriter http.ResponseWriter, request *http.Request) {
 	var registerRequest models.RegisterRequest
 	if err := json.NewDecoder(request.Body).Decode(&registerRequest); err != nil {
