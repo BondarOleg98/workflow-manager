@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"workflowmanager/app/controllers"
 	"workflowmanager/app/db"
-	route "workflowmanager/app/routing"
 	"workflowmanager/app/util"
 )
 
@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 	startDatabaseInstance()
-	route.InitBaseController()
+	controllers.AppController{}.InitAppControllers()
 	startServer()
 	defer db.CloseDatabaseConnection()
 }
