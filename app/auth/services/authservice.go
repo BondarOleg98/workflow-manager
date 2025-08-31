@@ -19,17 +19,17 @@ var (
 
 type AuthService struct {
 	userRepository *repository.UserRepository
-	jwtToken       []byte
+	jwtSecret      []byte
 	accessTokenTTL time.Duration
 }
 
 func NewAuthService(
 	userRepository *repository.UserRepository,
-	jwtToken []byte,
+	jwtSecret []byte,
 	accessTokenTTL time.Duration) *AuthService {
 	return &AuthService{
 		userRepository: userRepository,
-		jwtToken:       jwtToken,
+		jwtSecret:      jwtSecret,
 		accessTokenTTL: accessTokenTTL,
 	}
 }
@@ -79,7 +79,7 @@ func (authService *AuthService) generateAccessToken(user *models.User) (string, 
 		"iat":      time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(authService.jwtToken)
+	tokenString, err := token.SignedString(authService.jwtSecret)
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +91,7 @@ func (authService *AuthService) ValidateToken(tokenString string) (jwt.MapClaims
 		if _, valid := token.Method.(*jwt.SigningMethodHMAC); !valid {
 			return nil, ErrInvalidToken
 		}
-		return authService.jwtToken, nil
+		return authService.jwtSecret, nil
 	})
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
