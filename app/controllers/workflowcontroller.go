@@ -1,43 +1,56 @@
-package routing
+package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"workflowmanager/app/models"
 	"workflowmanager/app/services"
 )
 
-func getWorkflowsByPaginationController(
+type WorkflowController struct {
+}
+
+func (workflowController WorkflowController) InitWorkflowController() {
+	log.Println("Init the workflow controllers")
+	baseWorkflowRoute := "/api/v1/workflows"
+	http.HandleFunc(fmt.Sprintf("GET %s", baseWorkflowRoute), getWorkflowsByPagination)
+	http.HandleFunc(fmt.Sprintf("GET %s/{workflowId}", baseWorkflowRoute), getWorkflowById)
+	http.HandleFunc(fmt.Sprintf("DELETE %s/remove/{workflowId}", baseWorkflowRoute), removeWorkflowById)
+	http.HandleFunc(fmt.Sprintf("POST %s/save", baseWorkflowRoute), saveWorkflow)
+}
+
+func getWorkflowsByPagination(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	pageSize, err := parseRequestIntParam(request.URL.Query().Get("page_size"))
-	cursor := request.URL.Query().Get("cursor")
+	pageSize, err := strconv.Atoi(request.URL.Query().Get("page_size"))
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusBadRequest)
 	} else {
+		cursor := request.URL.Query().Get("cursor")
 		workflows, err := services.GetWorkflowsByPagination(cursor, pageSize)
 		if err != nil {
 			responseWriter.WriteHeader(http.StatusInternalServerError)
 		} else {
-			responseHandler(workflows, responseWriter)
+			responseComposer(workflows, responseWriter)
 		}
 	}
 }
 
-func getWorkflowByIdController(
+func getWorkflowById(
 	responseWriter http.ResponseWriter, request *http.Request) {
 	workflowId := request.PathValue("workflowId")
 	workflow, err := services.GetWorkflowById(workflowId)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusNotFound)
 	} else {
-		responseWriter.WriteHeader(http.StatusOK)
-		responseHandler(workflow, responseWriter)
+		responseComposer(workflow, responseWriter)
 	}
 }
 
-func removeWorkflowByIdController(responseWriter http.ResponseWriter, request *http.Request) {
+func removeWorkflowById(responseWriter http.ResponseWriter, request *http.Request) {
 	workflowId := request.PathValue("workflowId")
 	err := services.RemoveWorkflowById(workflowId)
 	if err != nil {
@@ -60,13 +73,4 @@ func saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
 	} else {
 		responseWriter.WriteHeader(http.StatusCreated)
 	}
-}
-
-func InitBaseController() {
-	log.Println("Init base app's controllers")
-	http.HandleFunc("GET /api/workflows", getWorkflowsByPaginationController)
-	http.HandleFunc("GET /api/workflows/{workflowId}", getWorkflowByIdController)
-	http.HandleFunc("DELETE /api/workflows/remove/{workflowId}", removeWorkflowByIdController)
-	http.HandleFunc("POST /api/workflow/save", saveWorkflow)
-	http.HandleFunc("/", notFoundHandler)
 }
