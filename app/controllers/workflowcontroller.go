@@ -11,10 +11,10 @@ import (
 	"workflowmanager/app/services"
 )
 
-type WorkflowController struct {
+type workflowController struct {
 }
 
-func (workflowController WorkflowController) InitWorkflowController() {
+func (workflowController workflowController) InitWorkflowController() {
 	log.Println("Init the workflow controllers")
 	baseWorkflowRoute := "/api/v1/workflows"
 	http.HandleFunc(fmt.Sprintf("GET %s", baseWorkflowRoute), getWorkflowsByPagination)

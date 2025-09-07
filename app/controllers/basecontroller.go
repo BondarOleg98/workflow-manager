@@ -7,7 +7,7 @@ import (
 )
 
 type AppController struct {
-	workflowController WorkflowController
+	workflowController workflowController
 }
 
 func (appController AppController) InitAppControllers() {
