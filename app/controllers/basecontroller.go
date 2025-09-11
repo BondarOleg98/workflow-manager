@@ -7,12 +7,11 @@ import (
 )
 
 type AppController struct {
-	workflowController workflowController
 }
 
 func (appController AppController) InitAppControllers() {
 	log.Println("Init the app controllers")
-	appController.workflowController.InitWorkflowController()
+	InitWorkflowController().AddWorkflowHandlers()
 	http.HandleFunc("/", notFoundHandler)
 }
 
