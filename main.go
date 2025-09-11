@@ -28,7 +28,7 @@ func main() {
 }
 
 func startDatabaseInstance() {
-	go db.InitDatabaseInstance(db.CreatePgPool())
+	db.InitDatabaseInstance(db.CreatePgPool())
 }
 
 func startServer() {
