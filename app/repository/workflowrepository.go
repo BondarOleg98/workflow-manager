@@ -3,14 +3,23 @@ package repository
 import (
 	"database/sql"
 	"log"
-	"workflowmanager/app/db"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
 	"workflowmanager/app/repository/mapper"
 )
 
-func GetWorkflowsByPagination(cursor string, pageSize int) ([]models.Workflow, error) {
-	database := db.GetDatabaseInstance()
+type WorkflowRepository struct {
+	database *sql.DB
+}
+
+func InitWorkflowRepository(database *sql.DB) WorkflowRepository {
+	return WorkflowRepository{
+		database: database,
+	}
+}
+
+func (workflowRepository WorkflowRepository) GetWorkflowsByPagination(cursor string, pageSize int) ([]models.Workflow, error) {
+	database := workflowRepository.database
 	var rows *sql.Rows
 	var err error
 
@@ -34,8 +43,8 @@ func GetWorkflowsByPagination(cursor string, pageSize int) ([]models.Workflow, e
 	return mapper.WorkflowsListMapped(rows)
 }
 
-func GetWorkflowById(workflowId string) (models.Workflow, error) {
-	database := db.GetDatabaseInstance()
+func (workflowRepository WorkflowRepository) GetWorkflowById(workflowId string) (models.Workflow, error) {
+	database := workflowRepository.database
 	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
 	if err != nil {
 		log.Printf("The error during getting workflow by id %s from DB: %s", workflowId, err)
@@ -56,9 +65,9 @@ func GetWorkflowById(workflowId string) (models.Workflow, error) {
 	return mapper.WorkflowMapped(row)
 }
 
-func removeTasksByWorkflowId(workflowId string) (int64, error) {
-	database := db.GetDatabaseInstance()
-	_, err := removeActionsByWorkflowId(workflowId)
+func (workflowRepository WorkflowRepository) removeTasksByWorkflowId(workflowId string) (int64, error) {
+	database := workflowRepository.database
+	_, err := workflowRepository.removeActionsByWorkflowId(workflowId)
 	if err != nil {
 		return 0, err
 	}
@@ -73,8 +82,8 @@ func removeTasksByWorkflowId(workflowId string) (int64, error) {
 	return rowsTasksAffected, err
 }
 
-func removeActionsByWorkflowId(workflowId string) (int64, error) {
-	database := db.GetDatabaseInstance()
+func (workflowRepository WorkflowRepository) removeActionsByWorkflowId(workflowId string) (int64, error) {
+	database := workflowRepository.database
 	resultDeletedActions, err := database.Exec(queries.RemoveActionsByTaskIdQuery, workflowId)
 	if err != nil {
 		log.Printf("The error during deleting actions by workflow id %s from DB: %s",
@@ -86,9 +95,9 @@ func removeActionsByWorkflowId(workflowId string) (int64, error) {
 	return rowsActionsAffected, err
 }
 
-func RemoveWorkflowById(workflowId string) (int64, error) {
-	database := db.GetDatabaseInstance()
-	_, err := removeTasksByWorkflowId(workflowId)
+func (workflowRepository WorkflowRepository) RemoveWorkflowById(workflowId string) (int64, error) {
+	database := workflowRepository.database
+	_, err := workflowRepository.removeTasksByWorkflowId(workflowId)
 	if err != nil {
 		return 0, err
 	}
@@ -102,8 +111,8 @@ func RemoveWorkflowById(workflowId string) (int64, error) {
 	return rowsWorkflowsAffected, err
 }
 
-func SaveWorkflow(workflow models.Workflow) error {
-	database := db.GetDatabaseInstance()
+func (workflowRepository WorkflowRepository) SaveWorkflow(workflow models.Workflow) error {
+	database := workflowRepository.database
 	_, err := database.Exec(queries.InsertWorkflowQuery,
 		workflow.WorkflowId.String(), workflow.Name, workflow.UpdatedAt, workflow.CreatedAt)
 	if err != nil {

@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"workflowmanager/app/controllers"
 	"workflowmanager/app/db"
-	route "workflowmanager/app/routing"
 	"workflowmanager/app/util"
 )
 
@@ -22,13 +22,13 @@ func main() {
 		return
 	}
 	startDatabaseInstance()
-	route.InitBaseController()
+	controllers.AppController{}.InitAppControllers()
 	startServer()
 	defer db.CloseDatabaseConnection()
 }
 
 func startDatabaseInstance() {
-	go db.InitDatabaseInstance(db.CreatePgPool())
+	db.InitDatabaseInstance(db.CreatePgPool())
 }
 
 func startServer() {
