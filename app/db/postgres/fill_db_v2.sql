@@ -1,7 +1,8 @@
 -- DB version 2.0 schema
+
 CREATE EXTENSION IF NOT EXISTS ulid;
 
-CREATE OR REPLACE PROCEDURE fill_workflow_tables()
+CREATE OR REPLACE PROCEDURE fill_workflow_table()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -20,13 +21,12 @@ BEGIN
             'INSERT INTO workflows(workflow_id, name, created_at, updated_at) ' ||
             'VALUES ($1, $2, $3, $3)'
         USING workflow_id, workflow_name, time_current;
-        CALL fill_task_tables(workflow_id, workflow_name);
+        CALL fill_task_table(workflow_id, workflow_name);
     END LOOP;
 END
 $$;
 
-
-CREATE OR REPLACE PROCEDURE fill_task_tables(workflow_id VARCHAR, workflow_name VARCHAR)
+CREATE OR REPLACE PROCEDURE fill_task_table(workflow_id VARCHAR, workflow_name VARCHAR)
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -45,13 +45,13 @@ BEGIN
             'INSERT INTO tasks(task_id, name, created_at, updated_at, workflow_id) ' ||
             'VALUES ($1, $2, $3, $3, $4)'
             USING task_id, task_name, time_current, workflow_id;
-        CALL fill_action_tables(task_id, task_name);
+        CALL fill_action_table(task_id, task_name);
     END LOOP;
 END
 $$;
 
 
-CREATE OR REPLACE PROCEDURE fill_action_tables(task_id VARCHAR, task_name VARCHAR)
+CREATE OR REPLACE PROCEDURE fill_action_table(task_id VARCHAR, task_name VARCHAR)
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -66,15 +66,12 @@ BEGIN
     EXECUTE
         'INSERT INTO actions(action_id, name, created_at, updated_at, task_id)' ||
         'VALUES ($1, $2, $3, $3, $4)'
-        USING action_id, action_name, time_current, task_id;
+    USING action_id, action_name, time_current, task_id;
 END
 $$;
 
-DO $FN$
+DO $main$
 BEGIN
-    CALL fill_workflow_tables();
+    CALL fill_workflow_table();
 END
-$FN$;
-
-
-
+$main$;
