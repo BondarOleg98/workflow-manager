@@ -16,7 +16,8 @@ BEGIN
         time_current := now();
         workflow_id := gen_random_uuid();
         workflow_name := concat('workflow_', workflow_id);
-        RAISE NOTICE '% - Creating %s with time %s', workflow_counter, workflow_name, time_current;
+        RAISE NOTICE '% - Creating %s with time %s',
+            workflow_counter, workflow_name, time_current;
         EXECUTE
             'INSERT INTO workflows(workflow_id, name, created_at, updated_at)' ||
             'VALUES ($1, $2, $3, $3)'
@@ -38,18 +39,18 @@ BEGIN
         time_current := now();
         task_id := gen_random_uuid();
         task_name := concat('task_', task_id);
-        RAISE NOTICE '% - Creating %s with time %s under %s', task_counter, task_name, time_current, workflow_name;
+        RAISE NOTICE '% - Creating %s with time %s under %s',
+            task_counter, task_name, time_current, workflow_name;
         EXECUTE
             'INSERT INTO tasks(task_id, name, created_at, updated_at, workflow_id)' ||
             'VALUES ($1, $2, $3, $3, $4)'
         USING task_id, task_name, time_current, workflow_id;
         CALL fill_action_table(task_id, task_name);
-
     END LOOP;
 END
 $$;
 
-CREATE OR REPLACE PROCEDURE fill_action_table(task_id VARCHAR, task_name VARCHAR)
+CREATE OR REPLACE PROCEDURE fill_action_table(task_id UUID, task_name VARCHAR)
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -60,7 +61,8 @@ BEGIN
     time_current := now();
     action_id := gen_random_uuid();
     action_name := concat('action_', action_id);
-    RAISE NOTICE 'Creating %s with time %s under %s', action_name, time_current, task_name;
+    RAISE NOTICE 'Creating %s with time %s under %s',
+        action_name, time_current, task_name;
     EXECUTE
         'INSERT INTO actions(action_id, name, created_at, updated_at, task_id)' ||
         'VALUES ($1, $2, $3, $3, $4)'
