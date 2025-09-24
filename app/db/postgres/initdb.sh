@@ -62,13 +62,14 @@ grantPrivileges() {
 }
 
 createTablesAndRelationships() {
-  # shellcheck disable=SC2154
-  runSQL "${POSTGRES_DB}" "-f" "${pg_scripts_path}/${POSTGRES_SCHEMA_SCRIPT}"
+  psql "${pg_connection_url}/${POSTGRES_DB}" -f "${POSTGRES_SCRIPTS_PATH}/${POSTGRES_SCHEMA_SCRIPT}"
 }
 
 fillDatabase() {
   logInfo "Filling DB"
-  runSQL "${POSTGRES_DB}" "-f" "${pg_scripts_path}/${POSTGRES_FILL_TEST_DATA_SCRIPT}"
+  psql "${pg_connection_url}/${POSTGRES_DB}" \
+  -f "${POSTGRES_SCRIPTS_PATH}/${POSTGRES_FILL_TEST_DATA_SCRIPT}" \
+  -v workflows_count="${WORKFLOWS_COUNT}" -v tasks_under_workflow_count="${TASKS_UNDER_WORKFLOW_COUNT}"
 }
 
 main() {
@@ -87,8 +88,8 @@ main() {
   fi
 
   if ${POSTGRES_MIGRATIONS_ENABLED}; then
-    chmod +x "${pg_scripts_path}/migrations.sh"
-    source "${pg_scripts_path}/migrations.sh"
+    logInfo "Run the db migrations script"
+    runSQL "${POSTGRES_DB}" "-f" "${POSTGRES_SCRIPTS_PATH}/${POSTGRES_MIGRATIONS_SCRIPT}"
   fi
 }
 

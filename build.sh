@@ -1,7 +1,5 @@
 #!/bin/bash
 
-pg_scripts_path="app/db/postgres"
-
 logInfo() {
   printf '%b' "\e[32mINFO [$(date '+%Y-%m-%d %H:%M:%S')] $*\e[0m\n"
 }
@@ -21,5 +19,6 @@ exportEnvs() {
 logInfo "Starting the build script"
 exportEnvs
 logInfo "Run the init db script"
-chmod +x ${pg_scripts_path}/initdb.sh
-source ${pg_scripts_path}/initdb.sh
+chmod +x "${POSTGRES_SCRIPTS_PATH}/${POSTGRES_INIT_SCRIPT}"
+# shellcheck disable=SC1090
+source "${POSTGRES_SCRIPTS_PATH}/${POSTGRES_INIT_SCRIPT}"
