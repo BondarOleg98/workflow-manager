@@ -1,15 +1,17 @@
 -- DB version 1.0 schema
 
-CREATE OR REPLACE PROCEDURE fill_workflow_table()
+CREATE OR REPLACE PROCEDURE fill_workflow_table(entities_counts jsonb)
 LANGUAGE plpgsql
 AS $$
 DECLARE
     workflows_count INT;
+    tasks_under_workflow_count INT;
     time_current TIMESTAMP;
     workflow_id UUID;
     workflow_name VARCHAR;
 BEGIN
-    workflows_count := 5;
+    workflows_count := (entities_counts->>'workflows_count')::INT;
+    tasks_under_workflow_count := (entities_counts->>'tasks_under_workflow_count')::INT;
     FOR workflow_counter IN 1..workflows_count LOOP
         time_current := now();
         workflow_id := gen_random_uuid();
@@ -19,22 +21,20 @@ BEGIN
             'INSERT INTO workflows(workflow_id, name, created_at, updated_at)' ||
             'VALUES ($1, $2, $3, $3)'
         USING workflow_id, workflow_name, time_current;
-        CALL fill_task_table(workflow_id, workflow_name);
+        CALL fill_task_table(workflow_id, workflow_name, tasks_under_workflow_count);
     END LOOP;
 END
 $$;
 
-CREATE OR REPLACE PROCEDURE fill_task_table(workflow_id VARCHAR, workflow_name VARCHAR)
+CREATE OR REPLACE PROCEDURE fill_task_table(workflow_id UUID, workflow_name VARCHAR, tasks_under_workflow_count INT)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    tasks_count INT;
     time_current TIMESTAMP;
     task_id UUID;
     task_name VARCHAR;
 BEGIN
-    tasks_count := 10;
-    FOR task_counter IN 1..tasks_count LOOP
+    FOR task_counter IN 1..tasks_under_workflow_count LOOP
         time_current := now();
         task_id := gen_random_uuid();
         task_name := concat('task_', task_id);
@@ -68,8 +68,8 @@ BEGIN
 END
 $$;
 
-DO $main$
-BEGIN
-    CALL fill_workflow_table();
-END
-$main$;
+\set workflows_count :workflows_count
+\set tasks_under_workflow_count :tasks_under_workflow_count
+\set entities_counts '{"workflows_count": ':workflows_count', "tasks_under_workflow_count": ' :tasks_under_workflow_count '}'
+
+CALL fill_workflow_table(:'entities_counts'::jsonb);
