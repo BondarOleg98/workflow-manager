@@ -20,8 +20,9 @@ func testCrdOperations(test *testing.T) {
 	testGetWorkflowsByPaginationWithoutCursor(test, pageSizeSeveralElements, expectedWorkflows)
 	pageSizeOneElement := 1
 	testGetWorkflowsByPaginationWithoutCursor(test, pageSizeOneElement, expectedWorkflows)
+	workflowService := services.InitWorkflowService()
 	gotWorkflowsByPaginationWithoutCursor, err :=
-		services.GetWorkflowsByPagination("", pageSizeSeveralElements)
+		workflowService.GetWorkflowsByPagination("", pageSizeSeveralElements)
 	if err != nil {
 		test.Errorf("the issue during getting workflows without cursor")
 	}
@@ -35,14 +36,16 @@ func testCrdOperations(test *testing.T) {
 }
 
 func testSaveWorkflow(test *testing.T, workflow models.Workflow) {
-	err := services.SaveWorkflow(workflow)
+	workflowService := services.InitWorkflowService()
+	err := workflowService.SaveWorkflow(workflow)
 	assertEqualNil(test, err, "the error during saving the workflow")
 }
 
 func testGetWorkflowsByPaginationWithoutCursor(test *testing.T,
 	pageSizeElements int, expectedWorkflows []models.Workflow) {
+	workflowService := services.InitWorkflowService()
 	gotWorkflowsByPaginationWithoutCursor, err :=
-		services.GetWorkflowsByPagination("", pageSizeElements)
+		workflowService.GetWorkflowsByPagination("", pageSizeElements)
 	assertEqualNil(test, err, "the error during getting workflows by pagination without cursor")
 	assertEqual(test, len(gotWorkflowsByPaginationWithoutCursor), pageSizeElements,
 		"the count of the workflows are different after getting by pagination without cursor")
@@ -54,8 +57,9 @@ func testGetWorkflowsByPaginationWithoutCursor(test *testing.T,
 
 func testGetWorkflowsByPaginationUsingCursor(test *testing.T,
 	cursor string, pageSizeElements int, expectedWorkflows []models.Workflow) {
+	workflowService := services.InitWorkflowService()
 	gotWorkFLowByPaginationUsingCursor, err :=
-		services.GetWorkflowsByPagination(cursor, pageSizeElements)
+		workflowService.GetWorkflowsByPagination(cursor, pageSizeElements)
 	assertEqualNil(test, err, "the error during getting workflows by pagination using cursor")
 	assertEqual(test, len(gotWorkFLowByPaginationUsingCursor), pageSizeElements,
 		"the count of the workflows are different after getting by pagination using cursor")
@@ -66,9 +70,10 @@ func testGetWorkflowsByPaginationUsingCursor(test *testing.T,
 }
 
 func testRemoveWorkflowById(test *testing.T, removingWorkflow models.Workflow) {
-	err := services.RemoveWorkflowById(removingWorkflow.WorkflowId.String())
+	workflowService := services.InitWorkflowService()
+	err := workflowService.RemoveWorkflowById(removingWorkflow.WorkflowId.String())
 	assertEqualNil(test, err, "the error during removing the workflow by id")
-	_, err = services.GetWorkflowById(removingWorkflow.WorkflowId.String())
+	_, err = workflowService.GetWorkflowById(removingWorkflow.WorkflowId.String())
 	assertEqualNotNil(test, err, "the workflow by id was not deleted")
 }
 

@@ -10,8 +10,8 @@ import (
 	"time"
 	"workflowmanager/app/auth/repository"
 	"workflowmanager/app/auth/services"
+	"workflowmanager/app/controllers"
 	"workflowmanager/app/db"
-	route "workflowmanager/app/routing"
 	"workflowmanager/app/util"
 )
 
@@ -25,19 +25,17 @@ func main() {
 		return
 	}
 	startDatabaseInstance()
-	route.InitBaseController()
-
 	userRepository := repository.NewUserRepository(db.GetDatabaseInstance())
 	authService := services.NewAuthService(
 		userRepository, []byte(os.Getenv("JWT_SECRET")), 15*time.Minute)
-	authHandler := route.NewAuthHandler(authService)
 	http.HandleFunc("POST /api/auth/register", authHandler.RegisterController)
+	controllers.AppController{}.InitAppControllers()
 	startServer()
 	defer db.CloseDatabaseConnection()
 }
 
 func startDatabaseInstance() {
-	go db.InitDatabaseInstance(db.CreatePgPool())
+	db.InitDatabaseInstance(db.CreatePgPool())
 }
 
 func startServer() {
