@@ -12,6 +12,7 @@ type AppController struct {
 func (appController AppController) InitAppControllers() {
 	log.Println("Init the app controllers")
 	InitWorkflowController().AddWorkflowHandlers()
+	InitAuthController().AddAuthHandlers()
 	http.HandleFunc("/", notFoundHandler)
 }
 

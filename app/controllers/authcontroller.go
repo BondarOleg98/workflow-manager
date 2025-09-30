@@ -1,24 +1,38 @@
-package routing
+package controllers
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"net/http"
-	"workflowmanager/app/auth/models"
-	"workflowmanager/app/auth/services"
+	"os"
+	"time"
+	"workflowmanager/app/models"
+	"workflowmanager/app/services"
 )
 
-type AuthHandler struct {
-	authService *services.AuthService
+type AuthController struct {
+	authService services.AuthService
 }
 
-func NewAuthHandler(authService *services.AuthService) *AuthHandler {
-	return &AuthHandler{
-		authService: authService,
+func InitAuthController() AuthController {
+	return AuthController{
+		authService: services.InitAuthService(
+			[]byte(os.Getenv("JWT_SECRET")),
+			15*time.Minute),
 	}
 }
 
-func (authHandler *AuthHandler) RegisterController(responseWriter http.ResponseWriter, request *http.Request) {
+func (authController AuthController) AddAuthHandlers() {
+	log.Println("Add the auth controller")
+	baseAuthRoute := "/api/auth"
+	http.HandleFunc(fmt.Sprintf("POST %s/register", baseAuthRoute), authController.registerUser)
+	//http.HandleFunc(fmt.Sprintf("POST %s/login", baseAuthRoute), authController.loginUser)
+}
+
+func (authController AuthController) registerUser(
+	responseWriter http.ResponseWriter, request *http.Request) {
 	var registerRequest models.RegisterRequest
 	if err := json.NewDecoder(request.Body).Decode(&registerRequest); err != nil {
 		http.Error(responseWriter, "The invalid request payload", http.StatusBadRequest)
@@ -35,7 +49,7 @@ func (authHandler *AuthHandler) RegisterController(responseWriter http.ResponseW
 		Username: registerRequest.Username,
 		Password: registerRequest.Password,
 	}
-	createdUser, err := authHandler.authService.Register(newUser)
+	createdUser, err := authController.authService.Register(newUser)
 	if err != nil {
 		if errors.Is(err, services.ErrEmailInUse) {
 			http.Error(responseWriter, "the email already in use", http.StatusConflict)
@@ -58,3 +72,7 @@ func (authHandler *AuthHandler) RegisterController(responseWriter http.ResponseW
 		return
 	}
 }
+
+//func (authController AuthController) loginUser(
+//	responseWriter http.ResponseWriter, request *http.Request) {
+//}

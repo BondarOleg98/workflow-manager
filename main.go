@@ -7,9 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
-	"workflowmanager/app/auth/repository"
-	"workflowmanager/app/auth/services"
 	"workflowmanager/app/controllers"
 	"workflowmanager/app/db"
 	"workflowmanager/app/util"
@@ -25,10 +22,6 @@ func main() {
 		return
 	}
 	startDatabaseInstance()
-	userRepository := repository.NewUserRepository(db.GetDatabaseInstance())
-	authService := services.NewAuthService(
-		userRepository, []byte(os.Getenv("JWT_SECRET")), 15*time.Minute)
-	http.HandleFunc("POST /api/auth/register", authHandler.RegisterController)
 	controllers.AppController{}.InitAppControllers()
 	startServer()
 	defer db.CloseDatabaseConnection()

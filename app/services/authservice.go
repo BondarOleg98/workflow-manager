@@ -5,9 +5,10 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
-	"workflowmanager/app/auth/models"
-	"workflowmanager/app/auth/repository"
-	"workflowmanager/app/auth/utils"
+	"workflowmanager/app/db"
+	"workflowmanager/app/models"
+	"workflowmanager/app/repository"
+	"workflowmanager/app/util"
 )
 
 var (
@@ -23,12 +24,11 @@ type AuthService struct {
 	accessTokenTTL time.Duration
 }
 
-func NewAuthService(
-	userRepository *repository.UserRepository,
+func InitAuthService(
 	jwtSecret []byte,
-	accessTokenTTL time.Duration) *AuthService {
-	return &AuthService{
-		userRepository: userRepository,
+	accessTokenTTL time.Duration) AuthService {
+	return AuthService{
+		userRepository: repository.InitUserRepository(db.GetDatabaseInstance()),
 		jwtSecret:      jwtSecret,
 		accessTokenTTL: accessTokenTTL,
 	}
@@ -42,7 +42,7 @@ func (authService *AuthService) Register(user models.User) (*models.User, error)
 	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
-	hashedPassword, err := utils.HashPassword(user.Password)
+	hashedPassword, err := util.HashPassword(user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (authService *AuthService) Login(user models.User) (string, error) {
 	if err != nil {
 		return "", ErrInvalidCredentials
 	}
-	if err := utils.VerifyPassword(retrievedUser.Password, user.Password); err != nil {
+	if err := util.VerifyPassword(retrievedUser.Password, user.Password); err != nil {
 		return "", ErrInvalidCredentials
 	}
 	jwtToken, err := authService.generateAccessToken(retrievedUser)

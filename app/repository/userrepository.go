@@ -4,15 +4,15 @@ import (
 	"database/sql"
 	"github.com/oklog/ulid/v2"
 	"time"
-	"workflowmanager/app/auth/models"
 	"workflowmanager/app/db/queries"
+	"workflowmanager/app/models"
 )
 
 type UserRepository struct {
 	database *sql.DB
 }
 
-func NewUserRepository(database *sql.DB) *UserRepository {
+func InitUserRepository(database *sql.DB) *UserRepository {
 	return &UserRepository{database: database}
 }
 
