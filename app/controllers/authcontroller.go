@@ -28,7 +28,7 @@ func (authController AuthController) AddAuthHandlers() {
 	log.Println("Add the auth controller")
 	baseAuthRoute := "/api/auth"
 	http.HandleFunc(fmt.Sprintf("POST %s/register", baseAuthRoute), authController.registerUser)
-	//http.HandleFunc(fmt.Sprintf("POST %s/login", baseAuthRoute), authController.loginUser)
+	http.HandleFunc(fmt.Sprintf("POST %s/login", baseAuthRoute), authController.loginUser)
 }
 
 func (authController AuthController) registerUser(
@@ -73,6 +73,31 @@ func (authController AuthController) registerUser(
 	}
 }
 
-//func (authController AuthController) loginUser(
-//	responseWriter http.ResponseWriter, request *http.Request) {
-//}
+func (authController AuthController) loginUser(
+	responseWriter http.ResponseWriter, request *http.Request) {
+	var req models.LoginRequest
+	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
+		http.Error(responseWriter, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+	user := models.User{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+	token, err := authController.authService.Login(user)
+	if err != nil {
+		if errors.Is(err, services.ErrInvalidCredentials) {
+			http.Error(responseWriter, "Invalid credentials", http.StatusUnauthorized)
+		} else {
+			http.Error(responseWriter, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	response := models.LoginResponse{Token: token}
+	responseWriter.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(responseWriter).Encode(response)
+	if err != nil {
+		return
+	}
+}

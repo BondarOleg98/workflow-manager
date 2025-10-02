@@ -21,7 +21,7 @@ func (userRepository *UserRepository) CreateUser(newUser models.User) (*models.U
 	newUser.ID = ulid.Make()
 
 	_, err := userRepository.database.Exec(
-		queries.InsertUserQuery, newUser.ID, newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
+		queries.InsertUserQuery, newUser.ID.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
 	if err != nil {
 		return nil, err
 	}

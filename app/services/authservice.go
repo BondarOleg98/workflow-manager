@@ -35,8 +35,8 @@ func InitAuthService(
 }
 
 func (authService *AuthService) Register(user models.User) (*models.User, error) {
-	_, err := authService.userRepository.GetUserByEmail(user.Email)
-	if err != nil {
+	retrievedUser, err := authService.userRepository.GetUserByEmail(user.Email)
+	if retrievedUser != nil {
 		return nil, ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
