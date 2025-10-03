@@ -33,7 +33,12 @@ func (userRepository *UserRepository) GetUserByEmail(email string) (*models.User
 
 	err := userRepository.database.QueryRow(
 		queries.SelectUserByEmail, email).Scan(
-		&user,
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.LastLogin,
 	)
 	if err != nil {
 		return nil, err
