@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -16,10 +15,5 @@ func (appController AppController) InitAppControllers() {
 }
 
 func notFoundHandler(responseWriter http.ResponseWriter, _ *http.Request) {
-	responseWriter.WriteHeader(http.StatusNotFound)
-	const defaultNotFoundMessage string = "The api request was not found"
-	_, err := fmt.Fprint(responseWriter, defaultNotFoundMessage)
-	if err != nil {
-		log.Printf("%s", err.Error())
-	}
+	http.Error(responseWriter, "the api request was not found", http.StatusNotFound)
 }
