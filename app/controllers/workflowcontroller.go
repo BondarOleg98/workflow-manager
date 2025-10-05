@@ -39,7 +39,8 @@ func (workflowController WorkflowController) getWorkflowsByPagination(
 		if err != nil {
 			responseWriter.WriteHeader(http.StatusInternalServerError)
 		} else {
-			responseComposer(workflows, responseWriter)
+			responseWriter.WriteHeader(http.StatusOK)
+			buildResponseBody(workflows, responseWriter)
 		}
 	}
 }
@@ -52,7 +53,8 @@ func (workflowController WorkflowController) getWorkflowById(
 		errorMsg := fmt.Sprintf("the workflow with id - %s", workflowId)
 		http.Error(responseWriter, errorMsg, http.StatusNotFound)
 	} else {
-		responseComposer(workflow, responseWriter)
+		responseWriter.WriteHeader(http.StatusOK)
+		buildResponseBody(workflow, responseWriter)
 	}
 }
 
