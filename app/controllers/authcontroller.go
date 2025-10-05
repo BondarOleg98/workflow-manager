@@ -7,9 +7,9 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 	"workflowmanager/app/models"
 	"workflowmanager/app/services"
+	"workflowmanager/app/util"
 )
 
 type AuthController struct {
@@ -20,7 +20,7 @@ func InitAuthController() AuthController {
 	return AuthController{
 		authService: services.InitAuthService(
 			[]byte(os.Getenv("JWT_SECRET")),
-			15*time.Minute),
+			util.ParseTimeConfigVariable(os.Getenv("JWT_ACCESS_TTL"))),
 	}
 }
 
@@ -34,22 +34,16 @@ func (authController AuthController) AddAuthHandlers() {
 func (authController AuthController) registerUser(
 	responseWriter http.ResponseWriter, request *http.Request) {
 	var registerRequest models.RegisterRequest
-	if err := json.NewDecoder(request.Body).Decode(&registerRequest); err != nil {
-		http.Error(responseWriter, "The invalid request payload", http.StatusBadRequest)
+	var err error
+	if err = json.NewDecoder(request.Body).Decode(&registerRequest); err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	if registerRequest.Email == "" ||
-		registerRequest.Username == "" ||
-		registerRequest.Password == "" {
+	if err = validateAuthRequestBody(registerRequest); err != nil {
 		http.Error(responseWriter, "email, username, and password are required", http.StatusBadRequest)
 		return
 	}
-	newUser := models.User{
-		Email:    registerRequest.Email,
-		Username: registerRequest.Username,
-		Password: registerRequest.Password,
-	}
-	createdUser, err := authController.authService.Register(newUser)
+	createdUser, err := authController.authService.Register(registerRequest)
 	if err != nil {
 		if errors.Is(err, services.ErrEmailInUse) {
 			http.Error(responseWriter, "the email already in use", http.StatusConflict)
@@ -58,33 +52,23 @@ func (authController AuthController) registerUser(
 		http.Error(responseWriter, "the error during creating a user", http.StatusInternalServerError)
 		return
 	}
-
-	response := models.RegisterResponse{
+	buildResponseBody(models.RegisterResponse{
 		ID:       createdUser.ID.String(),
 		Email:    createdUser.Email,
 		Username: createdUser.Username,
-	}
-
-	responseWriter.Header().Set("Content-Type", "application/json")
+	}, responseWriter)
 	responseWriter.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(responseWriter).Encode(response)
-	if err != nil {
-		return
-	}
 }
 
 func (authController AuthController) loginUser(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	var req models.LoginRequest
-	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
-		http.Error(responseWriter, "Invalid request payload", http.StatusBadRequest)
+	var loginRequest models.LoginRequest
+	err := json.NewDecoder(request.Body).Decode(&loginRequest)
+	if err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	user := models.User{
-		Email:    req.Email,
-		Password: req.Password,
-	}
-	token, err := authController.authService.Login(user)
+	token, err := authController.authService.Login(loginRequest)
 	if err != nil {
 		if errors.Is(err, services.ErrInvalidCredentials) {
 			http.Error(responseWriter, "Invalid credentials", http.StatusUnauthorized)
@@ -93,11 +77,5 @@ func (authController AuthController) loginUser(
 		}
 		return
 	}
-
-	response := models.LoginResponse{Token: token}
-	responseWriter.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(responseWriter).Encode(response)
-	if err != nil {
-		return
-	}
+	buildResponseBody(models.LoginResponse{Token: token}, responseWriter)
 }

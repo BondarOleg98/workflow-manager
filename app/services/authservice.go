@@ -34,32 +34,36 @@ func InitAuthService(
 	}
 }
 
-func (authService *AuthService) Register(user models.User) (*models.User, error) {
-	retrievedUser, err := authService.userRepository.GetUserByEmail(user.Email)
+func (authService *AuthService) Register(registerRequest models.RegisterRequest) (*models.User, error) {
+	retrievedUser, err := authService.userRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
 		return nil, ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
-	hashedPassword, err := util.HashPassword(user.Password)
+	hashedPassword, err := util.HashPassword(registerRequest.Password)
 	if err != nil {
 		return nil, err
 	}
-	user.Password = hashedPassword
-	createdUser, err := authService.userRepository.CreateUser(user)
+	registerRequest.Password = hashedPassword
+	createdUser, err := authService.userRepository.CreateUser(models.User{
+		Email:    registerRequest.Email,
+		Username: registerRequest.Username,
+		Password: hashedPassword,
+	})
 	if err != nil {
 		return nil, err
 	}
 	return createdUser, nil
 }
 
-func (authService *AuthService) Login(user models.User) (string, error) {
-	retrievedUser, err := authService.userRepository.GetUserByEmail(user.Email)
+func (authService *AuthService) Login(loginRequest models.LoginRequest) (string, error) {
+	retrievedUser, err := authService.userRepository.GetUserByEmail(loginRequest.Email)
 	if err != nil {
 		return "", ErrInvalidCredentials
 	}
-	if err := util.VerifyPassword(retrievedUser.Password, user.Password); err != nil {
+	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
 		return "", ErrInvalidCredentials
 	}
 	jwtToken, err := authService.generateAccessToken(retrievedUser)
