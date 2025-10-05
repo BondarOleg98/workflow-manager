@@ -10,17 +10,17 @@ import (
 )
 
 type WorkflowService struct {
-	WorkflowRepository repository.WorkflowRepository
+	workflowRepository repository.WorkflowRepository
 }
 
 func InitWorkflowService() WorkflowService {
 	return WorkflowService{
-		WorkflowRepository: repository.InitWorkflowRepository(db.GetDatabaseInstance()),
+		workflowRepository: repository.InitWorkflowRepository(db.GetDatabaseInstance()),
 	}
 }
 
 func (workflowService WorkflowService) GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
-	workflows, err = workflowService.WorkflowRepository.GetWorkflowsByPagination(cursor, pageSize)
+	workflows, err = workflowService.workflowRepository.GetWorkflowsByPagination(cursor, pageSize)
 	if err == nil {
 		log.Printf("Workflows were retrieved")
 	}
@@ -28,7 +28,7 @@ func (workflowService WorkflowService) GetWorkflowsByPagination(cursor string, p
 }
 
 func (workflowService WorkflowService) GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
-	workflow, err = workflowService.WorkflowRepository.GetWorkflowById(workflowId)
+	workflow, err = workflowService.workflowRepository.GetWorkflowById(workflowId)
 	if err == nil {
 		log.Printf("Workflow by id - %s was retrieved", workflowId)
 	}
@@ -36,7 +36,7 @@ func (workflowService WorkflowService) GetWorkflowById(workflowId string) (workf
 }
 
 func (workflowService WorkflowService) RemoveWorkflowById(workflowId string) error {
-	rowsWorkflowsAffected, err := workflowService.WorkflowRepository.RemoveWorkflowById(workflowId)
+	rowsWorkflowsAffected, err := workflowService.workflowRepository.RemoveWorkflowById(workflowId)
 	if err == nil {
 		log.Printf("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
 		return nil
@@ -49,7 +49,7 @@ func (workflowService WorkflowService) SaveWorkflow(workflow models.Workflow) er
 	workflow.UpdatedAt = workflow.CreatedAt
 	workflowId := ulid.Make()
 	workflow.WorkflowId = workflowId
-	err := workflowService.WorkflowRepository.SaveWorkflow(workflow)
+	err := workflowService.workflowRepository.SaveWorkflow(workflow)
 	if err != nil {
 		return err
 	}
