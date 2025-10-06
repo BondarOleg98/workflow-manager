@@ -30,6 +30,7 @@ func (workflowController WorkflowController) AddWorkflowHandlers() {
 
 func (workflowController WorkflowController) getWorkflowsByPagination(
 	responseWriter http.ResponseWriter, request *http.Request) {
+	isAuthorised(responseWriter, request)
 	pageSize, err := strconv.Atoi(request.URL.Query().Get("page_size"))
 	if err != nil {
 		http.Error(responseWriter, "the issue with request param", http.StatusBadRequest)
@@ -47,6 +48,7 @@ func (workflowController WorkflowController) getWorkflowsByPagination(
 
 func (workflowController WorkflowController) getWorkflowById(
 	responseWriter http.ResponseWriter, request *http.Request) {
+	isAuthorised(responseWriter, request)
 	workflowId := request.PathValue("workflowId")
 	workflow, err := workflowController.workflowService.GetWorkflowById(workflowId)
 	if err != nil {
@@ -59,6 +61,7 @@ func (workflowController WorkflowController) getWorkflowById(
 }
 
 func (workflowController WorkflowController) removeWorkflowById(responseWriter http.ResponseWriter, request *http.Request) {
+	isAuthorised(responseWriter, request)
 	workflowId := request.PathValue("workflowId")
 	err := workflowController.workflowService.RemoveWorkflowById(workflowId)
 	if err != nil {
@@ -70,6 +73,7 @@ func (workflowController WorkflowController) removeWorkflowById(responseWriter h
 }
 
 func (workflowController WorkflowController) saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
+	isAuthorised(responseWriter, request)
 	var workflow models.Workflow
 	err := json.NewDecoder(request.Body).Decode(&workflow)
 	if err != nil {

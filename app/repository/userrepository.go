@@ -18,10 +18,10 @@ func InitUserRepository(database *sql.DB) *UserRepository {
 
 func (userRepository *UserRepository) CreateUser(newUser models.User) (*models.User, error) {
 	newUser.CreatedAt = time.Now()
-	newUser.ID = ulid.Make()
+	newUser.Id = ulid.Make()
 
 	_, err := userRepository.database.Exec(
-		queries.InsertUserQuery, newUser.ID.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
+		queries.InsertUserQuery, newUser.Id.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -31,15 +31,15 @@ func (userRepository *UserRepository) CreateUser(newUser models.User) (*models.U
 func (userRepository *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 
-	err := userRepository.database.QueryRow(
-		queries.SelectUserByEmail, email).Scan(
-		&user.ID,
-		&user.Username,
-		&user.Email,
-		&user.Password,
-		&user.CreatedAt,
-		&user.LastLogin,
-	)
+	err := userRepository.database.QueryRow(queries.SelectUserByEmail, email).
+		Scan(
+			&user.Id,
+			&user.Username,
+			&user.Email,
+			&user.Password,
+			&user.CreatedAt,
+			&user.LastLogin,
+		)
 	if err != nil {
 		return nil, err
 	}
