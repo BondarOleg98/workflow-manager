@@ -13,32 +13,31 @@ const (
 	UserIdKey contextKey = "userId"
 )
 
-func AuthChain(authService *services.AuthService) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
-			token, err := validateAuthorizationHeader(request)
-			if err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
-			}
-			claims, err := authService.ValidateToken(token)
-			if err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
-				return
-			}
-			userIdStr, err := validateSubClaims(claims)
-			if err != nil {
-				http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
-				return
-			}
-			userId, err := ulid.Parse(userIdStr)
-			if err != nil {
-				http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
-				return
-			}
-			ctx := context.WithValue(request.Context(), UserIdKey, userId)
-			next.ServeHTTP(responseWriter, request.WithContext(ctx))
-		})
-	}
+func AuthChain(authService services.AuthService, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
+		token, err := validateAuthorizationHeader(request)
+		if err != nil {
+			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		claims, err := authService.ValidateToken(token)
+		if err != nil {
+			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		userIdStr, err := validateSubClaims(claims)
+		if err != nil {
+			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		userId, err := ulid.Parse(userIdStr)
+		if err != nil {
+			http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
+			return
+		}
+		ctx := context.WithValue(request.Context(), UserIdKey, userId)
+		next.ServeHTTP(responseWriter, request.WithContext(ctx))
+	})
 }
 
 func getUserId(request *http.Request) (ulid.ULID, bool) {

@@ -19,13 +19,17 @@ func InitWorkflowController() WorkflowController {
 		workflowService: services.InitWorkflowService(),
 	}
 }
-func (workflowController WorkflowController) AddWorkflowHandlers() {
+func (workflowController WorkflowController) AddWorkflowHandlers(authService services.AuthService) {
 	log.Println("Add the workflow controller")
 	baseWorkflowRoute := "/api/v1/workflows"
-	http.HandleFunc(fmt.Sprintf("GET %s", baseWorkflowRoute), workflowController.getWorkflowsByPagination)
-	http.HandleFunc(fmt.Sprintf("GET %s/{workflowId}", baseWorkflowRoute), workflowController.getWorkflowById)
-	http.HandleFunc(fmt.Sprintf("DELETE %s/remove/{workflowId}", baseWorkflowRoute), workflowController.removeWorkflowById)
-	http.HandleFunc(fmt.Sprintf("POST %s/save", baseWorkflowRoute), workflowController.saveWorkflow)
+	http.Handle(fmt.Sprintf("GET %s", baseWorkflowRoute),
+		AuthChain(authService, http.HandlerFunc(workflowController.getWorkflowsByPagination)))
+	http.Handle(fmt.Sprintf("GET %s/{workflowId}", baseWorkflowRoute),
+		AuthChain(authService, http.HandlerFunc(workflowController.getWorkflowById)))
+	http.Handle(fmt.Sprintf("DELETE %s/remove/{workflowId}", baseWorkflowRoute),
+		AuthChain(authService, http.HandlerFunc(workflowController.removeWorkflowById)))
+	http.Handle(fmt.Sprintf("POST %s/save", baseWorkflowRoute),
+		AuthChain(authService, http.HandlerFunc(workflowController.saveWorkflow)))
 }
 
 func (workflowController WorkflowController) getWorkflowsByPagination(

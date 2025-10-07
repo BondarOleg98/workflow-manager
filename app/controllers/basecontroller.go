@@ -10,8 +10,10 @@ type AppController struct {
 
 func (appController AppController) InitAppControllers() {
 	log.Println("Init the app controllers")
-	InitWorkflowController().AddWorkflowHandlers()
-	InitAuthController().AddAuthHandlers()
+	authController := InitAuthController()
+	authController.AddAuthHandlers()
+	authService := authController.authService
+	InitWorkflowController().AddWorkflowHandlers(authService)
 	http.HandleFunc("/", notFoundHandler)
 }
 
