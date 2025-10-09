@@ -12,7 +12,7 @@ type UserRepository struct {
 	database *sql.DB
 }
 
-func InitUserRepository(database *sql.DB) *UserRepository {
+func NewUserRepository(database *sql.DB) *UserRepository {
 	return &UserRepository{database: database}
 }
 

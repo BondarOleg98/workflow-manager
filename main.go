@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"workflowmanager/app/controllers"
+	"workflowmanager/app/components"
 	"workflowmanager/app/db"
 	"workflowmanager/app/util"
 )
@@ -22,7 +22,7 @@ func main() {
 		return
 	}
 	startDatabaseInstance()
-	controllers.AppController{}.InitAppControllers()
+	components.InitAppComponent()
 	startServer()
 	defer db.CloseDatabaseConnection()
 }
