@@ -76,7 +76,7 @@ func (authService *AuthService) Login(loginRequest models.LoginRequest) (string,
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
 	expirationTime := time.Now().Add(authService.accessTokenTTL)
 	claims := jwt.MapClaims{
-		"sub":      user.ID.String(),
+		"sub":      user.Id.String(),
 		"username": user.Username,
 		"email":    user.Email,
 		"exp":      expirationTime.Unix(),
