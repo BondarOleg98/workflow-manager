@@ -6,33 +6,33 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
-	"workflowmanager/app/services"
 )
 
 type WorkflowController struct {
-	workflowService services.WorkflowService
+	workflowService *services.WorkflowService
 }
 
-func InitWorkflowController() WorkflowController {
-	return WorkflowController{
-		workflowService: services.InitWorkflowService(),
+func NewWorkflowController(workflowService *services.WorkflowService) *WorkflowController {
+	return &WorkflowController{
+		workflowService: workflowService,
 	}
 }
-func (workflowController WorkflowController) AddWorkflowHandlers(authService services.AuthService) {
+func (workflowController *WorkflowController) AddWorkflowHandlers(checker *AuthChecker) {
 	log.Println("Add the workflow controller")
 	baseWorkflowRoute := "/api/v1/workflows"
 	http.Handle(fmt.Sprintf("GET %s", baseWorkflowRoute),
-		AuthChain(authService, http.HandlerFunc(workflowController.getWorkflowsByPagination)))
+		checker.checkAuth(http.HandlerFunc(workflowController.getWorkflowsByPagination)))
 	http.Handle(fmt.Sprintf("GET %s/{workflowId}", baseWorkflowRoute),
-		AuthChain(authService, http.HandlerFunc(workflowController.getWorkflowById)))
+		checker.checkAuth(http.HandlerFunc(workflowController.getWorkflowById)))
 	http.Handle(fmt.Sprintf("DELETE %s/remove/{workflowId}", baseWorkflowRoute),
-		AuthChain(authService, http.HandlerFunc(workflowController.removeWorkflowById)))
+		checker.checkAuth(http.HandlerFunc(workflowController.removeWorkflowById)))
 	http.Handle(fmt.Sprintf("POST %s/save", baseWorkflowRoute),
-		AuthChain(authService, http.HandlerFunc(workflowController.saveWorkflow)))
+		checker.checkAuth(http.HandlerFunc(workflowController.saveWorkflow)))
 }
 
-func (workflowController WorkflowController) getWorkflowsByPagination(
+func (workflowController *WorkflowController) getWorkflowsByPagination(
 	responseWriter http.ResponseWriter, request *http.Request) {
 	isAuthorised(responseWriter, request)
 	pageSize, err := strconv.Atoi(request.URL.Query().Get("page_size"))
@@ -50,7 +50,7 @@ func (workflowController WorkflowController) getWorkflowsByPagination(
 	}
 }
 
-func (workflowController WorkflowController) getWorkflowById(
+func (workflowController *WorkflowController) getWorkflowById(
 	responseWriter http.ResponseWriter, request *http.Request) {
 	isAuthorised(responseWriter, request)
 	workflowId := request.PathValue("workflowId")
@@ -64,7 +64,7 @@ func (workflowController WorkflowController) getWorkflowById(
 	}
 }
 
-func (workflowController WorkflowController) removeWorkflowById(responseWriter http.ResponseWriter, request *http.Request) {
+func (workflowController *WorkflowController) removeWorkflowById(responseWriter http.ResponseWriter, request *http.Request) {
 	isAuthorised(responseWriter, request)
 	workflowId := request.PathValue("workflowId")
 	err := workflowController.workflowService.RemoveWorkflowById(workflowId)
@@ -76,7 +76,7 @@ func (workflowController WorkflowController) removeWorkflowById(responseWriter h
 	}
 }
 
-func (workflowController WorkflowController) saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
+func (workflowController *WorkflowController) saveWorkflow(responseWriter http.ResponseWriter, request *http.Request) {
 	isAuthorised(responseWriter, request)
 	var workflow models.Workflow
 	err := json.NewDecoder(request.Body).Decode(&workflow)

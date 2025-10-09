@@ -4,23 +4,29 @@ import (
 	"context"
 	"github.com/oklog/ulid/v2"
 	"net/http"
-	"workflowmanager/app/services"
+	"workflowmanager/app/components/services"
 )
+
+type AuthChecker struct {
+	authService *services.AuthService
+}
+
+func NewAuthChecker(authService *services.AuthService) *AuthChecker {
+	return &AuthChecker{authService: authService}
+}
 
 type contextKey string
 
-const (
-	UserIdKey contextKey = "userId"
-)
+const UserIdKey contextKey = "userId"
 
-func AuthChain(authService services.AuthService, next http.Handler) http.Handler {
+func (authChecker *AuthChecker) checkAuth(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		token, err := validateAuthorizationHeader(request)
 		if err != nil {
 			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		claims, err := authService.ValidateToken(token)
+		claims, err := authChecker.authService.ValidateToken(token)
 		if err != nil {
 			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
 			return
@@ -36,7 +42,7 @@ func AuthChain(authService services.AuthService, next http.Handler) http.Handler
 			return
 		}
 		ctx := context.WithValue(request.Context(), UserIdKey, userId)
-		next.ServeHTTP(responseWriter, request.WithContext(ctx))
+		handler.ServeHTTP(responseWriter, request.WithContext(ctx))
 	})
 }
 

@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 	"time"
-	"workflowmanager/app/db"
+	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
-	"workflowmanager/app/repository"
 	"workflowmanager/app/util"
 )
 
@@ -20,17 +20,11 @@ var (
 
 type AuthService struct {
 	userRepository *repository.UserRepository
-	jwtSecret      []byte
-	accessTokenTTL time.Duration
 }
 
-func InitAuthService(
-	jwtSecret []byte,
-	accessTokenTTL time.Duration) AuthService {
-	return AuthService{
-		userRepository: repository.InitUserRepository(db.GetDatabaseInstance()),
-		jwtSecret:      jwtSecret,
-		accessTokenTTL: accessTokenTTL,
+func NewAuthService(userRepository *repository.UserRepository) *AuthService {
+	return &AuthService{
+		userRepository: userRepository,
 	}
 }
 
@@ -74,7 +68,7 @@ func (authService *AuthService) Login(loginRequest models.LoginRequest) (string,
 }
 
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
-	expirationTime := time.Now().Add(authService.accessTokenTTL)
+	expirationTime := time.Now().Add(util.ParseTimeConfigVariable(os.Getenv("JWT_ACCESS_TTL")))
 	claims := jwt.MapClaims{
 		"sub":      user.Id.String(),
 		"username": user.Username,
@@ -83,7 +77,7 @@ func (authService *AuthService) generateAccessToken(user *models.User) (string, 
 		"iat":      time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(authService.jwtSecret)
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return "", err
 	}
@@ -95,7 +89,7 @@ func (authService *AuthService) ValidateToken(tokenString string) (jwt.MapClaims
 		if _, valid := token.Method.(*jwt.SigningMethodHMAC); !valid {
 			return nil, ErrInvalidToken
 		}
-		return authService.jwtSecret, nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {

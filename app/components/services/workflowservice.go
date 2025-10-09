@@ -4,22 +4,21 @@ import (
 	"github.com/oklog/ulid/v2"
 	"log"
 	"time"
-	"workflowmanager/app/db"
+	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
-	"workflowmanager/app/repository"
 )
 
 type WorkflowService struct {
-	workflowRepository repository.WorkflowRepository
+	workflowRepository *repository.WorkflowRepository
 }
 
-func InitWorkflowService() WorkflowService {
-	return WorkflowService{
-		workflowRepository: repository.InitWorkflowRepository(db.GetDatabaseInstance()),
+func NewWorkflowService(workflowRepository *repository.WorkflowRepository) *WorkflowService {
+	return &WorkflowService{
+		workflowRepository: workflowRepository,
 	}
 }
 
-func (workflowService WorkflowService) GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
+func (workflowService *WorkflowService) GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
 	workflows, err = workflowService.workflowRepository.GetWorkflowsByPagination(cursor, pageSize)
 	if err == nil {
 		log.Printf("Workflows were retrieved")
@@ -27,7 +26,7 @@ func (workflowService WorkflowService) GetWorkflowsByPagination(cursor string, p
 	return
 }
 
-func (workflowService WorkflowService) GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
+func (workflowService *WorkflowService) GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	workflow, err = workflowService.workflowRepository.GetWorkflowById(workflowId)
 	if err == nil {
 		log.Printf("Workflow by id - %s was retrieved", workflowId)
@@ -35,7 +34,7 @@ func (workflowService WorkflowService) GetWorkflowById(workflowId string) (workf
 	return
 }
 
-func (workflowService WorkflowService) RemoveWorkflowById(workflowId string) error {
+func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) error {
 	rowsWorkflowsAffected, err := workflowService.workflowRepository.RemoveWorkflowById(workflowId)
 	if err == nil {
 		log.Printf("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
@@ -44,7 +43,7 @@ func (workflowService WorkflowService) RemoveWorkflowById(workflowId string) err
 	return err
 }
 
-func (workflowService WorkflowService) SaveWorkflow(workflow models.Workflow) error {
+func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
 	workflow.CreatedAt = time.Now()
 	workflow.UpdatedAt = workflow.CreatedAt
 	workflowId := ulid.Make()
