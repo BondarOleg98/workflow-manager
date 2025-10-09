@@ -52,12 +52,12 @@ func (authController AuthController) registerUser(
 		http.Error(responseWriter, "the error during creating a user", http.StatusInternalServerError)
 		return
 	}
+	responseWriter.WriteHeader(http.StatusCreated)
 	buildResponseBody(models.RegisterResponse{
 		Id:       createdUser.Id.String(),
 		Email:    createdUser.Email,
 		Username: createdUser.Username,
 	}, responseWriter)
-	responseWriter.WriteHeader(http.StatusCreated)
 }
 
 func (authController AuthController) loginUser(
