@@ -6,21 +6,17 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
-	"workflowmanager/app/services"
-	"workflowmanager/app/util"
 )
 
 type AuthController struct {
-	authService services.AuthService
+	authService *services.AuthService
 }
 
-func InitAuthController() AuthController {
+func NewAuthController(authService *services.AuthService) AuthController {
 	return AuthController{
-		authService: services.InitAuthService(
-			[]byte(os.Getenv("JWT_SECRET")),
-			util.ParseTimeConfigVariable(os.Getenv("JWT_ACCESS_TTL"))),
+		authService: authService,
 	}
 }
 
@@ -52,12 +48,12 @@ func (authController AuthController) registerUser(
 		http.Error(responseWriter, "the error during creating a user", http.StatusInternalServerError)
 		return
 	}
+	responseWriter.WriteHeader(http.StatusCreated)
 	buildResponseBody(models.RegisterResponse{
 		Id:       createdUser.Id.String(),
 		Email:    createdUser.Email,
 		Username: createdUser.Username,
 	}, responseWriter)
-	responseWriter.WriteHeader(http.StatusCreated)
 }
 
 func (authController AuthController) loginUser(

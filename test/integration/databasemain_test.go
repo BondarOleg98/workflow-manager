@@ -2,6 +2,8 @@ package integration
 
 import (
 	"testing"
+	"workflowmanager/app/components/repository"
+	"workflowmanager/app/components/services"
 	"workflowmanager/app/db"
 )
 
@@ -12,9 +14,12 @@ func TestDatabaseMain(test *testing.T) {
 	}
 	db.InitDatabaseInstance(pool)
 	defer db.CloseDatabaseConnection()
+	workflowRepository := repository.NewWorkflowRepository(db.GetDatabaseInstance())
+	workflowService := services.NewWorkflowService(workflowRepository)
+	workflowServiceTest := NewWorkflowServiceTest(workflowService)
 
 	test.Run("TestCrdOperations", func(test *testing.T) {
-		testCrdOperations(test)
+		workflowServiceTest.testCrdOperations(test)
 	})
 	test.Run("TestCorrectDatabaseInstance", func(t *testing.T) {
 		testCorrectDatabaseInstance(test)
