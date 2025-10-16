@@ -30,6 +30,7 @@ func (userRepository *UserRepository) CreateUser(newUser models.User) (*models.U
 
 func (userRepository *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
+	var lastLogin sql.NullTime
 
 	err := userRepository.database.QueryRow(queries.SelectUserByEmail, email).
 		Scan(
@@ -42,6 +43,10 @@ func (userRepository *UserRepository) GetUserByEmail(email string) (*models.User
 		)
 	if err != nil {
 		return nil, err
+	}
+
+	if lastLogin.Valid {
+		user.LastLogin = &lastLogin.Time
 	}
 
 	return &user, nil
