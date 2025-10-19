@@ -9,7 +9,7 @@ type RefreshToken struct {
 	Id        ulid.ULID
 	UserId    ulid.ULID
 	Token     string
-	ExpiresAt time.Time
+	ExpiredAt time.Time
 	CreatedAt time.Time
 	Revoked   bool
 }
