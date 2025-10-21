@@ -56,9 +56,8 @@ func setConfigVariables(fileContent map[string]string) error {
 func ParseTimeConfigVariable(configTimeVariable string) time.Duration {
 	duration, err := time.ParseDuration(configTimeVariable)
 	if err != nil {
-		log.Printf("Error during parsing the jwt ttl access: %s, getting the default value 1m", err)
+		log.Printf("Error during parsing the time env variable: %s, getting the default value 1m", err)
 		return 1 * time.Minute
 	}
-	log.Printf("The token TTL access is: %v", duration)
 	return duration
 }

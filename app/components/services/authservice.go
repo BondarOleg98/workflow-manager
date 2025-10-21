@@ -12,12 +12,16 @@ import (
 )
 
 type AuthService struct {
-	authRepository *repository.AuthRepository
+	authRepository  *repository.AuthRepository
+	refreshTokenTTL time.Duration
+	accessTokenTTL  time.Duration
 }
 
 func NewAuthService(authRepository *repository.AuthRepository) *AuthService {
 	return &AuthService{
-		authRepository: authRepository,
+		authRepository:  authRepository,
+		refreshTokenTTL: util.ParseTimeConfigVariable(os.Getenv("REFRESH_TOKEN_TTL")),
+		accessTokenTTL:  util.ParseTimeConfigVariable(os.Getenv("ACCESS_TOKEN_TTL")),
 	}
 }
 
@@ -72,8 +76,8 @@ func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginR
 	if err != nil {
 		return "", "", err
 	}
-	refreshTokenTTL := util.ParseTimeConfigVariable(os.Getenv("REFRESH_TOKEN_TTL"))
-	refreshToken, err := authService.authRepository.CreateRefreshToken(retrievedUser.Id, refreshTokenTTL)
+	refreshToken, err := authService.authRepository.
+		CreateRefreshToken(retrievedUser.Id, authService.refreshTokenTTL)
 	if err != nil {
 		return "", "", err
 	}
@@ -81,7 +85,7 @@ func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginR
 }
 
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
-	expirationTime := time.Now().Add(util.ParseTimeConfigVariable(os.Getenv("ACCESS_TOKEN_TTL")))
+	expirationTime := time.Now().Add(authService.accessTokenTTL)
 	claims := jwt.MapClaims{
 		"sub":      user.Id.String(),
 		"username": user.Username,
