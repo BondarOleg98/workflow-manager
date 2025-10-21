@@ -25,6 +25,7 @@ func (authController AuthController) AddAuthHandlers() {
 	baseAuthRoute := "/api/auth"
 	http.HandleFunc(fmt.Sprintf("POST %s/register", baseAuthRoute), authController.registerUser)
 	http.HandleFunc(fmt.Sprintf("POST %s/login", baseAuthRoute), authController.loginUser)
+	http.HandleFunc(fmt.Sprintf("POST %s/refresh", baseAuthRoute), authController.refreshToken)
 }
 
 func (authController AuthController) registerUser(
@@ -39,9 +40,9 @@ func (authController AuthController) registerUser(
 		http.Error(responseWriter, "email, username, and password are required", http.StatusBadRequest)
 		return
 	}
-	createdUser, err := authController.authService.Register(registerRequest)
+	createdUser, err := authController.authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
-		if errors.Is(err, services.ErrEmailInUse) {
+		if errors.Is(err, models.ErrEmailInUse) {
 			http.Error(responseWriter, "the email already in use", http.StatusConflict)
 			return
 		}
@@ -64,14 +65,37 @@ func (authController AuthController) loginUser(
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	token, err := authController.authService.Login(loginRequest)
+	accessToken, refreshToken, err := authController.authService.LoginWithRefreshToken(loginRequest)
 	if err != nil {
-		if errors.Is(err, services.ErrInvalidCredentials) {
+		if errors.Is(err, models.ErrInvalidCredentials) {
 			http.Error(responseWriter, "Invalid credentials", http.StatusUnauthorized)
 		} else {
 			http.Error(responseWriter, "Internal server error", http.StatusInternalServerError)
 		}
 		return
 	}
-	buildResponseBody(models.LoginResponse{Token: token}, responseWriter)
+	buildResponseBody(models.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, responseWriter)
+}
+
+func (authController AuthController) refreshToken(
+	responseWriter http.ResponseWriter, request *http.Request) {
+	var req models.RefreshRequest
+	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
+		return
+	}
+	accessToken, err := authController.authService.RefreshAccessToken(req.RefreshToken)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidToken) ||
+			errors.Is(err, models.ErrExpiredToken) {
+			http.Error(responseWriter, "the invalid or expired refresh token", http.StatusUnauthorized)
+		} else {
+			http.Error(responseWriter, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+	buildResponseBody(models.RefreshResponse{AccessToken: accessToken}, responseWriter)
 }

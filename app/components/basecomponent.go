@@ -17,7 +17,7 @@ func InitAppComponents() {
 	workflowService := services.NewWorkflowService(workflowRepository)
 	workflowController := controllers.NewWorkflowController(workflowService)
 
-	authRepository := repository.NewUserRepository(dbInstance)
+	authRepository := repository.NewAuthRepository(dbInstance)
 	authService := services.NewAuthService(authRepository)
 	authController := controllers.NewAuthController(authService)
 

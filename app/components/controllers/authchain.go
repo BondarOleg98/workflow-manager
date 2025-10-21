@@ -5,6 +5,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"net/http"
 	"workflowmanager/app/components/services"
+	"workflowmanager/app/models"
 )
 
 type AuthChecker struct {
@@ -14,10 +15,6 @@ type AuthChecker struct {
 func NewAuthChecker(authService *services.AuthService) *AuthChecker {
 	return &AuthChecker{authService: authService}
 }
-
-type contextKey string
-
-const UserIdKey contextKey = "userId"
 
 func (authChecker *AuthChecker) checkAuth(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
@@ -41,21 +38,7 @@ func (authChecker *AuthChecker) checkAuth(handler http.Handler) http.Handler {
 			http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(request.Context(), UserIdKey, userId)
+		ctx := context.WithValue(request.Context(), models.UserIdKey, userId)
 		handler.ServeHTTP(responseWriter, request.WithContext(ctx))
 	})
-}
-
-func getUserId(request *http.Request) (ulid.ULID, bool) {
-	userId, isContextKeyExist := request.Context().Value(UserIdKey).(ulid.ULID)
-	return userId, isContextKeyExist
-}
-
-func isAuthorised(
-	responseWriter http.ResponseWriter, request *http.Request) {
-	_, isContextKeyExist := getUserId(request)
-	if !isContextKeyExist {
-		http.Error(responseWriter, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
 }
