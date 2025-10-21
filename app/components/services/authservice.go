@@ -138,6 +138,10 @@ func (authService *AuthService) RefreshAccessToken(refreshToken string) (string,
 	if err != nil {
 		return "", err
 	}
+	err = authService.authRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
+	if err != nil {
+		return "", err
+	}
 	accessToken, err := authService.generateAccessToken(retrievedUser)
 	if err != nil {
 		return "", err
