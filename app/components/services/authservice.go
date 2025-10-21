@@ -11,13 +11,6 @@ import (
 	"workflowmanager/app/util"
 )
 
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrInvalidToken       = errors.New("invalid token")
-	ErrExpiredToken       = errors.New("token has expired")
-	ErrEmailInUse         = errors.New("email already in use")
-)
-
 type AuthService struct {
 	authRepository *repository.AuthRepository
 }

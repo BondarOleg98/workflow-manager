@@ -42,7 +42,7 @@ func (authController AuthController) registerUser(
 	}
 	createdUser, err := authController.authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
-		if errors.Is(err, services.ErrEmailInUse) {
+		if errors.Is(err, models.ErrEmailInUse) {
 			http.Error(responseWriter, "the email already in use", http.StatusConflict)
 			return
 		}
@@ -67,7 +67,7 @@ func (authController AuthController) loginUser(
 	}
 	accessToken, refreshToken, err := authController.authService.LoginWithRefreshToken(loginRequest)
 	if err != nil {
-		if errors.Is(err, services.ErrInvalidCredentials) {
+		if errors.Is(err, models.ErrInvalidCredentials) {
 			http.Error(responseWriter, "Invalid credentials", http.StatusUnauthorized)
 		} else {
 			http.Error(responseWriter, "Internal server error", http.StatusInternalServerError)
@@ -87,15 +87,15 @@ func (authController AuthController) refreshToken(
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	token, err := authController.authService.RefreshAccessToken(req.RefreshToken)
+	accessToken, err := authController.authService.RefreshAccessToken(req.RefreshToken)
 	if err != nil {
-		if errors.Is(err, services.ErrInvalidToken) ||
-			errors.Is(err, services.ErrExpiredToken) {
+		if errors.Is(err, models.ErrInvalidToken) ||
+			errors.Is(err, models.ErrExpiredToken) {
 			http.Error(responseWriter, "the invalid or expired refresh token", http.StatusUnauthorized)
 		} else {
 			http.Error(responseWriter, "Internal server error", http.StatusInternalServerError)
 		}
 		return
 	}
-	buildResponseBody(models.RefreshResponse{Token: token}, responseWriter)
+	buildResponseBody(models.RefreshResponse{AccessToken: accessToken}, responseWriter)
 }
