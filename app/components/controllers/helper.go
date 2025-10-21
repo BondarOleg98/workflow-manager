@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/oklog/ulid/v2"
 	"net/http"
+	"workflowmanager/app/models"
 )
 
 func buildResponseBody(data any, responseWriter http.ResponseWriter) {
@@ -12,7 +13,7 @@ func buildResponseBody(data any, responseWriter http.ResponseWriter) {
 }
 
 func getUserId(request *http.Request) (ulid.ULID, bool) {
-	userId, isContextKeyExist := request.Context().Value("userId").(ulid.ULID)
+	userId, isContextKeyExist := request.Context().Value(models.UserIdKey).(ulid.ULID)
 	return userId, isContextKeyExist
 }
 

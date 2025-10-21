@@ -5,6 +5,7 @@ import (
 	"github.com/oklog/ulid/v2"
 	"net/http"
 	"workflowmanager/app/components/services"
+	"workflowmanager/app/models"
 )
 
 type AuthChecker struct {
@@ -37,7 +38,7 @@ func (authChecker *AuthChecker) checkAuth(handler http.Handler) http.Handler {
 			http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
 			return
 		}
-		ctx := context.WithValue(request.Context(), "userId", userId)
+		ctx := context.WithValue(request.Context(), models.UserIdKey, userId)
 		handler.ServeHTTP(responseWriter, request.WithContext(ctx))
 	})
 }
