@@ -28,7 +28,7 @@ func NewAuthService(authRepository *repository.AuthRepository) *AuthService {
 func (authService *AuthService) RegisterUsingCredentials(registerRequest models.RegisterRequest) (*models.User, error) {
 	retrievedUser, err := authService.authRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
-		return nil, ErrEmailInUse
+		return nil, models.ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
@@ -52,10 +52,10 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest models.
 func (authService *AuthService) Login(loginRequest models.LoginRequest) (string, error) {
 	retrievedUser, err := authService.authRepository.GetUserByEmail(loginRequest.Email)
 	if err != nil {
-		return "", ErrInvalidCredentials
+		return "", models.ErrInvalidCredentials
 	}
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
-		return "", ErrInvalidCredentials
+		return "", models.ErrInvalidCredentials
 	}
 	accessToken, err := authService.generateAccessToken(retrievedUser)
 	if err != nil {
@@ -67,10 +67,10 @@ func (authService *AuthService) Login(loginRequest models.LoginRequest) (string,
 func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginRequest) (string, string, error) {
 	retrievedUser, err := authService.authRepository.GetUserByEmail(loginRequest.Email)
 	if err != nil {
-		return "", "", ErrInvalidCredentials
+		return "", "", models.ErrInvalidCredentials
 	}
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
-		return "", "", ErrInvalidCredentials
+		return "", "", models.ErrInvalidCredentials
 	}
 	accessToken, err := authService.generateAccessToken(retrievedUser)
 	if err != nil {
@@ -104,32 +104,32 @@ func (authService *AuthService) generateAccessToken(user *models.User) (string, 
 func (authService *AuthService) ValidateToken(token string) (jwt.MapClaims, error) {
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, valid := token.Method.(*jwt.SigningMethodHMAC); !valid {
-			return nil, ErrInvalidToken
+			return nil, models.ErrInvalidToken
 		}
 		return []byte(os.Getenv("TOKEN_SECRET")), nil
 	})
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {
-			return nil, ErrExpiredToken
+			return nil, models.ErrExpiredToken
 		}
-		return nil, ErrInvalidToken
+		return nil, models.ErrInvalidToken
 	}
 	if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok && parsedToken.Valid {
 		return claims, nil
 	}
-	return nil, ErrInvalidToken
+	return nil, models.ErrInvalidToken
 }
 
 func (authService *AuthService) RefreshAccessToken(refreshToken string) (string, error) {
 	retrievedRefreshToken, err := authService.authRepository.GetRefreshToken(refreshToken)
 	if err != nil {
-		return "", ErrInvalidToken
+		return "", models.ErrInvalidToken
 	}
 	if retrievedRefreshToken.Revoked {
-		return "", ErrInvalidToken
+		return "", models.ErrInvalidToken
 	}
 	if time.Now().After(retrievedRefreshToken.ExpiredAt) {
-		return "", ErrExpiredToken
+		return "", models.ErrExpiredToken
 	}
 	retrievedUser, err := authService.authRepository.GetUserById(retrievedRefreshToken.UserId)
 	if err != nil {

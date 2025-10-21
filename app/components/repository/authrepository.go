@@ -98,7 +98,7 @@ func (authRepository *AuthRepository) GetRefreshToken(token string) (*models.Ref
 	return &retrievedToken, nil
 }
 
-func (authRepository *AuthRepository) RevokeRefreshToken(tokenString string) error {
-	_, err := authRepository.database.Exec(queries.RevokedRefreshTokenQuery, tokenString)
+func (authRepository *AuthRepository) RevokeRefreshToken(refreshToken string) error {
+	_, err := authRepository.database.Exec(queries.RevokedRefreshTokenQuery, refreshToken)
 	return err
 }
