@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"log/slog"
 	"os"
 	"time"
 	"workflowmanager/app/components/repository"
@@ -28,6 +29,7 @@ func NewAuthService(authRepository *repository.AuthRepository) *AuthService {
 func (authService *AuthService) RegisterUsingCredentials(registerRequest models.RegisterRequest) (*models.User, error) {
 	retrievedUser, err := authService.authRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
+		slog.Info("retrieved the user by", "email", retrievedUser.Email)
 		return nil, models.ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
@@ -54,6 +56,7 @@ func (authService *AuthService) Login(loginRequest models.LoginRequest) (string,
 	if err != nil {
 		return "", models.ErrInvalidCredentials
 	}
+	slog.Info("retrieved the user by", "email", retrievedUser.Email)
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
 		return "", models.ErrInvalidCredentials
 	}
@@ -69,6 +72,7 @@ func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginR
 	if err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
+	slog.Info("retrieved the user by", "email", retrievedUser.Email)
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
@@ -85,6 +89,7 @@ func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginR
 }
 
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
+	slog.Info("generating the access token")
 	expirationTime := time.Now().Add(authService.accessTokenTTL)
 	claims := jwt.MapClaims{
 		"sub":      user.Id.String(),
@@ -102,6 +107,7 @@ func (authService *AuthService) generateAccessToken(user *models.User) (string, 
 }
 
 func (authService *AuthService) ValidateToken(token string) (jwt.MapClaims, error) {
+	slog.Info("validating the access token")
 	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, valid := token.Method.(*jwt.SigningMethodHMAC); !valid {
 			return nil, models.ErrInvalidToken
@@ -135,6 +141,7 @@ func (authService *AuthService) RefreshAccessToken(refreshToken string) (string,
 	if err != nil {
 		return "", err
 	}
+	slog.Info("retrieved the user by", "id", retrievedUser.Id)
 	err = authService.authRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
 	if err != nil {
 		return "", err

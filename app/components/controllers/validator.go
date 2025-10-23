@@ -3,12 +3,14 @@ package controllers
 import (
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"log/slog"
 	"net/http"
 	"strings"
 	"workflowmanager/app/models"
 )
 
 func validateAuthRequestBody(registerRequest models.RegisterRequest) error {
+	slog.Info("validating an authorization request body")
 	if registerRequest.Email == "" ||
 		registerRequest.Username == "" ||
 		registerRequest.Password == "" {
@@ -21,6 +23,7 @@ func validateAuthorizationHeader(request *http.Request) (string, error) {
 	const tokenCountParts int = 2
 	const tokenType string = "Bearer"
 	const separatedSymbol string = " "
+	slog.Info("validating an authorization header")
 	authHeader := request.Header.Get("Authorization")
 	if authHeader == "" {
 		return "", errors.New("authorization header required")
@@ -35,6 +38,7 @@ func validateAuthorizationHeader(request *http.Request) (string, error) {
 
 func validateSubClaims(claims jwt.MapClaims) (string, error) {
 	userId, isContextKeyExist := claims["sub"].(string)
+	slog.Info("validating claims")
 	if !isContextKeyExist {
 		return "", errors.New("invalid token claims")
 	}
