@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"workflowmanager/app/components/controllers"
 	"workflowmanager/app/components/repository"
+	"workflowmanager/app/components/security"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/db"
 )
@@ -14,16 +15,18 @@ func InitAppComponents() {
 	dbInstance := db.GetDatabaseInstance()
 
 	workflowRepository := repository.NewWorkflowRepository(dbInstance)
-	workflowService := services.NewWorkflowService(workflowRepository)
-	workflowController := controllers.NewWorkflowController(workflowService)
+	userRepository := repository.NewUserRepository(dbInstance)
+	refreshTokenRepository := repository.NewRefreshTokenRepository(dbInstance)
 
-	authRepository := repository.NewAuthRepository(dbInstance)
-	authService := services.NewAuthService(authRepository)
+	workflowService := services.NewWorkflowService(workflowRepository)
+	authService := services.NewAuthService(userRepository, refreshTokenRepository)
+
+	preAuthorize := security.NewPreAuthorize(authService)
 	authController := controllers.NewAuthController(authService)
+	workflowController := controllers.NewWorkflowController(workflowService, preAuthorize)
 
 	authController.AddAuthHandlers()
-	authChecker := controllers.NewAuthChecker(authService)
-	workflowController.AddWorkflowHandlers(authChecker)
+	workflowController.AddWorkflowHandlers()
 
 	http.HandleFunc("/", notFoundHandler)
 }

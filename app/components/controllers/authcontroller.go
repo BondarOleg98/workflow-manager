@@ -36,7 +36,7 @@ func (authController AuthController) registerUser(
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	if err = validateAuthRequestBody(registerRequest); err != nil {
+	if registerRequest.Email == "" || registerRequest.Username == "" || registerRequest.Password == "" {
 		http.Error(responseWriter, "email, username, and password are required", http.StatusBadRequest)
 		return
 	}
@@ -65,7 +65,7 @@ func (authController AuthController) loginUser(
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	accessToken, refreshToken, err := authController.authService.LoginWithRefreshToken(loginRequest)
+	accessToken, refreshToken, err := authController.authService.Login(loginRequest)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidCredentials) {
 			http.Error(responseWriter, "Invalid credentials", http.StatusUnauthorized)
