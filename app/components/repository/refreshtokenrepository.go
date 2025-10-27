@@ -8,15 +8,15 @@ import (
 	"workflowmanager/app/models"
 )
 
-type RefreshTokenRepository struct {
+type PostgresRefreshTokenRepository struct {
 	database *sql.DB
 }
 
-func NewRefreshTokenRepository(database *sql.DB) *RefreshTokenRepository {
-	return &RefreshTokenRepository{database: database}
+func NewPostgresRefreshTokenRepository(database *sql.DB) *PostgresRefreshTokenRepository {
+	return &PostgresRefreshTokenRepository{database: database}
 }
 
-func (refreshTokenRepository *RefreshTokenRepository) CreateRefreshToken(
+func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) CreateRefreshToken(
 	userId ulid.ULID, ttl time.Duration) (*models.RefreshToken, error) {
 	refreshTokenId := ulid.Make()
 	expiresAt := time.Now().Add(ttl)
@@ -29,7 +29,7 @@ func (refreshTokenRepository *RefreshTokenRepository) CreateRefreshToken(
 		CreatedAt: time.Now(),
 		Revoked:   false,
 	}
-	_, err := refreshTokenRepository.database.Exec(queries.InsertRefreshTokenQuery,
+	_, err := PostgresRefreshTokenRepository.database.Exec(queries.InsertRefreshTokenQuery,
 		token.Id.String(), token.UserId.String(), token.Token, token.ExpiredAt, token.CreatedAt, token.Revoked)
 	if err != nil {
 		return nil, err
@@ -38,9 +38,9 @@ func (refreshTokenRepository *RefreshTokenRepository) CreateRefreshToken(
 	return token, nil
 }
 
-func (refreshTokenRepository *RefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {
+func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {
 	var retrievedToken models.RefreshToken
-	err := refreshTokenRepository.database.QueryRow(queries.GetRefreshTokenQuery, token).Scan(
+	err := PostgresRefreshTokenRepository.database.QueryRow(queries.GetRefreshTokenQuery, token).Scan(
 		&retrievedToken.Id, &retrievedToken.UserId,
 		&retrievedToken.Token, &retrievedToken.ExpiredAt,
 		&retrievedToken.CreatedAt, &retrievedToken.Revoked,
@@ -51,7 +51,7 @@ func (refreshTokenRepository *RefreshTokenRepository) GetRefreshToken(token stri
 	return &retrievedToken, nil
 }
 
-func (refreshTokenRepository *RefreshTokenRepository) RevokeRefreshToken(refreshToken string) error {
-	_, err := refreshTokenRepository.database.Exec(queries.RevokedRefreshTokenQuery, refreshToken)
+func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) RevokeRefreshToken(refreshToken string) error {
+	_, err := PostgresRefreshTokenRepository.database.Exec(queries.RevokedRefreshTokenQuery, refreshToken)
 	return err
 }

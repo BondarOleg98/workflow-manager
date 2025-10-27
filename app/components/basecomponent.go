@@ -15,8 +15,8 @@ func InitAppComponents() {
 	dbInstance := db.GetDatabaseInstance()
 
 	workflowRepository := repository.NewWorkflowRepository(dbInstance)
-	userRepository := repository.NewUserRepository(dbInstance)
-	refreshTokenRepository := repository.NewRefreshTokenRepository(dbInstance)
+	userRepository := repository.NewPostgresUserRepository(dbInstance)
+	refreshTokenRepository := repository.NewPostgresRefreshTokenRepository(dbInstance)
 
 	workflowService := services.NewWorkflowService(workflowRepository)
 	authService := services.NewAuthService(userRepository, refreshTokenRepository)
