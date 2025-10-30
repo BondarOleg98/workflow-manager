@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/oklog/ulid/v2"
 	"log/slog"
 	"os"
 	"time"
@@ -44,9 +45,11 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest models.
 	}
 	registerRequest.Password = hashedPassword
 	createdUser, err := authService.userRepository.CreateUser(models.User{
-		Email:    registerRequest.Email,
-		Username: registerRequest.Username,
-		Password: hashedPassword,
+		Email:     registerRequest.Email,
+		Username:  registerRequest.Username,
+		Password:  hashedPassword,
+		CreatedAt: time.Now(),
+		Id:        ulid.Make(),
 	})
 	if err != nil {
 		return nil, err

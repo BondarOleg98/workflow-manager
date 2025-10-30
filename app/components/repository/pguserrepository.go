@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"github.com/oklog/ulid/v2"
-	"time"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
 )
@@ -17,8 +16,6 @@ func NewPostgresUserRepository(database *sql.DB) *PostgresUserRepository {
 }
 
 func (PostgresUserRepository *PostgresUserRepository) CreateUser(newUser models.User) (*models.User, error) {
-	newUser.CreatedAt = time.Now()
-	newUser.Id = ulid.Make()
 	_, err := PostgresUserRepository.database.Exec(
 		queries.SaveUserQuery, newUser.Id.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
 	if err != nil {
