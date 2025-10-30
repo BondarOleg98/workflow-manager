@@ -13,21 +13,24 @@ import (
 )
 
 type AuthService struct {
-	authRepository  *repository.AuthRepository
-	refreshTokenTTL time.Duration
-	accessTokenTTL  time.Duration
+	userRepository         repository.UserRepository
+	refreshTokenRepository repository.RefreshTokenRepository
+	refreshTokenTTL        time.Duration
+	accessTokenTTL         time.Duration
 }
 
-func NewAuthService(authRepository *repository.AuthRepository) *AuthService {
+func NewAuthService(userRepository repository.UserRepository,
+	refreshTokenRepository repository.RefreshTokenRepository) *AuthService {
 	return &AuthService{
-		authRepository:  authRepository,
-		refreshTokenTTL: util.ParseTimeConfigVariable(os.Getenv("REFRESH_TOKEN_TTL")),
-		accessTokenTTL:  util.ParseTimeConfigVariable(os.Getenv("ACCESS_TOKEN_TTL")),
+		userRepository:         userRepository,
+		refreshTokenRepository: refreshTokenRepository,
+		refreshTokenTTL:        util.ParseTimeConfigVariable(os.Getenv("REFRESH_TOKEN_TTL")),
+		accessTokenTTL:         util.ParseTimeConfigVariable(os.Getenv("ACCESS_TOKEN_TTL")),
 	}
 }
 
 func (authService *AuthService) RegisterUsingCredentials(registerRequest models.RegisterRequest) (*models.User, error) {
-	retrievedUser, err := authService.authRepository.GetUserByEmail(registerRequest.Email)
+	retrievedUser, err := authService.userRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
 		slog.Info("retrieved the user by", "email", retrievedUser.Email)
 		return nil, models.ErrEmailInUse
@@ -40,7 +43,7 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest models.
 		return nil, err
 	}
 	registerRequest.Password = hashedPassword
-	createdUser, err := authService.authRepository.CreateUser(models.User{
+	createdUser, err := authService.userRepository.CreateUser(models.User{
 		Email:    registerRequest.Email,
 		Username: registerRequest.Username,
 		Password: hashedPassword,
@@ -51,24 +54,8 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest models.
 	return createdUser, nil
 }
 
-func (authService *AuthService) Login(loginRequest models.LoginRequest) (string, error) {
-	retrievedUser, err := authService.authRepository.GetUserByEmail(loginRequest.Email)
-	if err != nil {
-		return "", models.ErrInvalidCredentials
-	}
-	slog.Info("retrieved the user by", "email", retrievedUser.Email)
-	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
-		return "", models.ErrInvalidCredentials
-	}
-	accessToken, err := authService.generateAccessToken(retrievedUser)
-	if err != nil {
-		return "", err
-	}
-	return accessToken, nil
-}
-
-func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginRequest) (string, string, error) {
-	retrievedUser, err := authService.authRepository.GetUserByEmail(loginRequest.Email)
+func (authService *AuthService) Login(loginRequest models.LoginRequest) (string, string, error) {
+	retrievedUser, err := authService.userRepository.GetUserByEmail(loginRequest.Email)
 	if err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
@@ -80,7 +67,7 @@ func (authService *AuthService) LoginWithRefreshToken(loginRequest models.LoginR
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := authService.authRepository.
+	refreshToken, err := authService.refreshTokenRepository.
 		CreateRefreshToken(retrievedUser.Id, authService.refreshTokenTTL)
 	if err != nil {
 		return "", "", err
@@ -127,7 +114,7 @@ func (authService *AuthService) ValidateToken(token string) (jwt.MapClaims, erro
 }
 
 func (authService *AuthService) RefreshAccessToken(refreshToken string) (string, error) {
-	retrievedRefreshToken, err := authService.authRepository.GetRefreshToken(refreshToken)
+	retrievedRefreshToken, err := authService.refreshTokenRepository.GetRefreshToken(refreshToken)
 	if err != nil {
 		return "", models.ErrInvalidToken
 	}
@@ -137,12 +124,12 @@ func (authService *AuthService) RefreshAccessToken(refreshToken string) (string,
 	if time.Now().After(retrievedRefreshToken.ExpiredAt) {
 		return "", models.ErrExpiredToken
 	}
-	retrievedUser, err := authService.authRepository.GetUserById(retrievedRefreshToken.UserId)
+	retrievedUser, err := authService.userRepository.GetUserById(retrievedRefreshToken.UserId)
 	if err != nil {
 		return "", err
 	}
 	slog.Info("retrieved the user by", "id", retrievedUser.Id)
-	err = authService.authRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
+	err = authService.refreshTokenRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
 	if err != nil {
 		return "", err
 	}
