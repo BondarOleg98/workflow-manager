@@ -70,8 +70,17 @@ func (authService *AuthService) Login(loginRequest models.LoginRequest) (string,
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := authService.refreshTokenRepository.
-		CreateRefreshToken(retrievedUser.Id, authService.refreshTokenTTL)
+	refreshTokenId := ulid.Make()
+	expiresAt := time.Now().Add(authService.refreshTokenTTL)
+	refreshToken := models.RefreshToken{
+		Id:        refreshTokenId,
+		UserId:    retrievedUser.Id,
+		Token:     refreshTokenId.String(),
+		ExpiredAt: expiresAt,
+		CreatedAt: time.Now(),
+		Revoked:   false,
+	}
+	err = authService.refreshTokenRepository.CreateRefreshToken(refreshToken)
 	if err != nil {
 		return "", "", err
 	}

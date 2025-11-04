@@ -1,17 +1,18 @@
 package unit
 
 import (
+	"github.com/oklog/ulid/v2"
 	"testing"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
 	"workflowmanager/app/util"
 )
 
-func TestAuthService_RegisterUsingCredentials(test *testing.T) {
+func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
 	const configFilePath string = "../../app/resources/dev_env.yaml"
 	_ = util.LoadConfigs(configFilePath)
 	userRepository := NewMockUserRepository()
-	userService := services.NewAuthService(userRepository, nil)
+	authService := services.NewAuthService(userRepository, nil)
 	registerRequest := models.RegisterRequest{
 		Email:    "test",
 		Password: "test",
@@ -22,7 +23,7 @@ func TestAuthService_RegisterUsingCredentials(test *testing.T) {
 		Password: registerRequest.Password,
 		Username: registerRequest.Username,
 	}
-	actualUser, err := userService.RegisterUsingCredentials(registerRequest)
+	actualUser, err := authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
 		test.Errorf("the issue during register user")
 	}
@@ -34,5 +35,43 @@ func TestAuthService_RegisterUsingCredentials(test *testing.T) {
 			"expected username: %s => actual username: %s \n"+
 			"password verify: %v",
 			expectedUser.Email, actualUser.Email, expectedUser.Username, actualUser.Username, err)
+	}
+}
+
+func TestAuthServiceLoginUsingCredentials(test *testing.T) {
+	const configFilePath string = "../../app/resources/dev_env.yaml"
+	_ = util.LoadConfigs(configFilePath)
+	userRepository := NewMockUserRepository()
+	refreshTokenRepository := NewRefreshTokenRepository()
+	authService := services.NewAuthService(userRepository, refreshTokenRepository)
+	registerRequest := models.RegisterRequest{
+		Email:    "test",
+		Password: "test",
+		Username: "test",
+	}
+	_, err := authService.RegisterUsingCredentials(registerRequest)
+	if err != nil {
+		test.Errorf("the issue during register user")
+	}
+	loginRequest := models.LoginRequest{
+		Email:    "test",
+		Password: "test",
+	}
+	accessToken, refreshToken, err := authService.Login(loginRequest)
+	if err != nil {
+		test.Errorf("the issue during login user")
+	}
+	claims, err := authService.ValidateToken(accessToken)
+	userIdStr, isContextKeyExist := claims["sub"].(string)
+	if !isContextKeyExist {
+		test.Errorf("invalid token claims")
+	}
+	_, err = ulid.Parse(userIdStr)
+	if err != nil {
+		test.Errorf("invalid userId")
+	}
+	_, err = refreshTokenRepository.GetRefreshToken(refreshToken)
+	if err != nil {
+		test.Errorf("the issue during getting the refresh token")
 	}
 }
