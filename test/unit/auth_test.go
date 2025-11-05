@@ -63,6 +63,9 @@ func TestAuthServiceLoginUsingCredentials(test *testing.T) {
 	}
 	claims, err := authService.ValidateToken(accessToken)
 	userIdStr, isContextKeyExist := claims["sub"].(string)
+	if err != nil {
+	  test.Errorf("the issue during validating token")
+	}
 	if !isContextKeyExist {
 		test.Errorf("invalid token claims")
 	}
