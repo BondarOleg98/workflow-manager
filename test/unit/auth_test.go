@@ -8,16 +8,26 @@ import (
 	"workflowmanager/app/util"
 )
 
-func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
+var registerRequest = models.RegisterRequest{
+	Email:    "test",
+	Password: "test",
+	Username: "test",
+}
+
+var loginRequest = models.LoginRequest{
+	Email:    "test",
+	Password: "test",
+}
+
+func prepareTestConfigs() {
 	const configFilePath string = "../../app/resources/dev_env.yaml"
 	_ = util.LoadConfigs(configFilePath)
+}
+
+func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
+	prepareTestConfigs()
 	userRepository := NewMockUserRepository()
 	authService := services.NewAuthService(userRepository, nil)
-	registerRequest := models.RegisterRequest{
-		Email:    "test",
-		Password: "test",
-		Username: "test",
-	}
 	expectedUser := models.User{
 		Email:    registerRequest.Email,
 		Password: registerRequest.Password,
@@ -39,23 +49,13 @@ func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
 }
 
 func TestAuthServiceLoginUsingCredentials(test *testing.T) {
-	const configFilePath string = "../../app/resources/dev_env.yaml"
-	_ = util.LoadConfigs(configFilePath)
+	prepareTestConfigs()
 	userRepository := NewMockUserRepository()
 	refreshTokenRepository := NewRefreshTokenRepository()
 	authService := services.NewAuthService(userRepository, refreshTokenRepository)
-	registerRequest := models.RegisterRequest{
-		Email:    "test",
-		Password: "test",
-		Username: "test",
-	}
 	_, err := authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
 		test.Errorf("the issue during register user")
-	}
-	loginRequest := models.LoginRequest{
-		Email:    "test",
-		Password: "test",
 	}
 	accessToken, refreshToken, err := authService.Login(loginRequest)
 	if err != nil {

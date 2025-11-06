@@ -35,12 +35,12 @@ func (preAuthorize *PreAuthorize) SecurityFilterChain(handler http.Handler) http
 			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		userIdStr, err := preAuthorize.validateSubClaims(claims)
+		userIdClaim, err := preAuthorize.validateSubClaims(claims)
 		if err != nil {
 			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		userId, err := ulid.Parse(userIdStr)
+		userId, err := ulid.Parse(userIdClaim)
 		if err != nil {
 			http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
 			return
