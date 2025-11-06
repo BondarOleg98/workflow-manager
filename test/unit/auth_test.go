@@ -99,6 +99,9 @@ func TestAuthServiceRefreshAccessToken(test *testing.T) {
 		test.Errorf("the refresh token was not revoked")
 	}
 	_, err = authService.RefreshAccessToken(refreshToken)
+	if err != nil {
+		test.Errorf("the issue during refreshing token")
+	}
 	token, err = refreshTokenRepository.GetRefreshToken(refreshToken)
 	if err != nil {
 		test.Errorf("the issue during getting the refresh token")
