@@ -2,8 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/oklog/ulid/v2"
-	"time"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
 )
@@ -16,26 +14,18 @@ func NewPostgresRefreshTokenRepository(database *sql.DB) *PostgresRefreshTokenRe
 	return &PostgresRefreshTokenRepository{database: database}
 }
 
-func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) CreateRefreshToken(
-	userId ulid.ULID, ttl time.Duration) (*models.RefreshToken, error) {
-	refreshTokenId := ulid.Make()
-	expiresAt := time.Now().Add(ttl)
-
-	token := &models.RefreshToken{
-		Id:        refreshTokenId,
-		UserId:    userId,
-		Token:     refreshTokenId.String(),
-		ExpiredAt: expiresAt,
-		CreatedAt: time.Now(),
-		Revoked:   false,
-	}
+func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) CreateRefreshToken(refreshToken models.RefreshToken) error {
 	_, err := PostgresRefreshTokenRepository.database.Exec(queries.InsertRefreshTokenQuery,
-		token.Id.String(), token.UserId.String(), token.Token, token.ExpiredAt, token.CreatedAt, token.Revoked)
+		refreshToken.Id.String(),
+		refreshToken.UserId.String(),
+		refreshToken.Token,
+		refreshToken.ExpiredAt,
+		refreshToken.CreatedAt,
+		refreshToken.Revoked)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return token, nil
+	return nil
 }
 
 func (PostgresRefreshTokenRepository *PostgresRefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {

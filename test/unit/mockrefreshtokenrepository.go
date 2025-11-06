@@ -1,0 +1,38 @@
+package unit
+
+import (
+	"fmt"
+	"workflowmanager/app/models"
+)
+
+type MockRefreshTokenRepository struct {
+	refreshTokens []models.RefreshToken
+}
+
+func NewRefreshTokenRepository() *MockRefreshTokenRepository {
+	return &MockRefreshTokenRepository{}
+}
+
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) CreateRefreshToken(refreshToken models.RefreshToken) error {
+	mockRefreshTokenRepository.refreshTokens = append(mockRefreshTokenRepository.refreshTokens, refreshToken)
+	return nil
+}
+
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {
+	for _, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
+		if retrievedRefreshToken.Token == token {
+			return &retrievedRefreshToken, nil
+		}
+	}
+	return nil, fmt.Errorf("the refresh token with value: %s haven't found", token)
+}
+
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) RevokeRefreshToken(refreshToken string) error {
+	for indexRefreshToken, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
+		if retrievedRefreshToken.Token == refreshToken {
+			mockRefreshTokenRepository.refreshTokens[indexRefreshToken].Revoked = true
+			return nil
+		}
+	}
+	return fmt.Errorf("the refresh token with value: %s haven't found", refreshToken)
+}
