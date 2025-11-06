@@ -75,3 +75,33 @@ func TestAuthServiceLoginUsingCredentials(test *testing.T) {
 		test.Errorf("the issue during getting the refresh token")
 	}
 }
+
+func TestAuthServiceRefreshAccessToken(test *testing.T) {
+	prepareTestConfigs()
+	userRepository := NewMockUserRepository()
+	refreshTokenRepository := NewRefreshTokenRepository()
+	authService := services.NewAuthService(userRepository, refreshTokenRepository)
+	_, err := authService.RegisterUsingCredentials(registerRequest)
+	if err != nil {
+		test.Errorf("the issue during register user")
+	}
+	_, refreshToken, err := authService.Login(loginRequest)
+	if err != nil {
+		test.Errorf("the issue during login user")
+	}
+	token, err := refreshTokenRepository.GetRefreshToken(refreshToken)
+	if err != nil {
+		test.Errorf("the issue during getting the refresh token")
+	}
+	if token.Revoked {
+		test.Errorf("the refresh token was not revoked")
+	}
+	_, err = authService.RefreshAccessToken(refreshToken)
+	token, err = refreshTokenRepository.GetRefreshToken(refreshToken)
+	if err != nil {
+		test.Errorf("the issue during getting the refresh token")
+	}
+	if !token.Revoked {
+		test.Errorf("the refresh token was not revoked")
+	}
+}

@@ -28,11 +28,11 @@ func (mockRefreshTokenRepository *MockRefreshTokenRepository) GetRefreshToken(to
 }
 
 func (mockRefreshTokenRepository *MockRefreshTokenRepository) RevokeRefreshToken(refreshToken string) error {
-	for _, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
+	for indexRefreshToken, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
 		if retrievedRefreshToken.Token == refreshToken {
-			retrievedRefreshToken.Revoked = true
+			mockRefreshTokenRepository.refreshTokens[indexRefreshToken].Revoked = true
 			return nil
 		}
 	}
-	return fmt.Errorf("the issue during revoke the refresh token")
+	return fmt.Errorf("the refresh token with value: %s haven't found", refreshToken)
 }
