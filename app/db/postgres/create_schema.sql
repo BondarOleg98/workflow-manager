@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS workflows (
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
+    state VARCHAR (50) NOT NULL,
     PRIMARY KEY(workflow_id)
 );
 
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
+    state VARCHAR (50) NOT NULL,
     PRIMARY KEY(task_id),
     CONSTRAINT fk_workflow
         FOREIGN KEY(workflow_id)
@@ -25,6 +27,7 @@ CREATE TABLE IF NOT EXISTS actions (
     name VARCHAR (50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
+    state VARCHAR (50) NOT NULL,
     PRIMARY KEY(action_id),
     CONSTRAINT fk_task
         FOREIGN KEY(task_id)
