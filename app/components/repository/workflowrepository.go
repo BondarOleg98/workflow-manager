@@ -65,42 +65,8 @@ func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string)
 	return mapper.WorkflowMapped(row)
 }
 
-func (workflowRepository *WorkflowRepository) removeTasksByWorkflowId(workflowId string) (int64, error) {
-	database := workflowRepository.database
-	_, err := workflowRepository.removeActionsByWorkflowId(workflowId)
-	if err != nil {
-		return 0, err
-	}
-	resultDeletedTasks, err := database.Exec(queries.RemoveTasksByWorkflowIdQuery, workflowId)
-	if err != nil {
-		log.Printf("The error during deleting tasks by workflow id %s from DB: %s",
-			workflowId, err)
-		return 0, err
-	}
-	rowsTasksAffected, _ := resultDeletedTasks.RowsAffected()
-	log.Printf("Tasks by workflowId - %s were removed %d", workflowId, rowsTasksAffected)
-	return rowsTasksAffected, err
-}
-
-func (workflowRepository *WorkflowRepository) removeActionsByWorkflowId(workflowId string) (int64, error) {
-	database := workflowRepository.database
-	resultDeletedActions, err := database.Exec(queries.RemoveActionsByTaskIdQuery, workflowId)
-	if err != nil {
-		log.Printf("The error during deleting actions by workflow id %s from DB: %s",
-			workflowId, err)
-		return 0, err
-	}
-	rowsActionsAffected, _ := resultDeletedActions.RowsAffected()
-	log.Printf("Actions by workflowId - %s were removed %d", workflowId, rowsActionsAffected)
-	return rowsActionsAffected, err
-}
-
 func (workflowRepository *WorkflowRepository) RemoveWorkflowById(workflowId string) (int64, error) {
 	database := workflowRepository.database
-	_, err := workflowRepository.removeTasksByWorkflowId(workflowId)
-	if err != nil {
-		return 0, err
-	}
 	resultDeletedWorkflows, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
 	if err != nil {
 		log.Printf("The error during deleting workflows by workflow id %s from DB: %s",
@@ -123,7 +89,8 @@ func (workflowRepository *WorkflowRepository) SaveWorkflow(workflow models.Workf
 		_, err = database.Exec(queries.InsertTaskQuery,
 			task.TaskId.String(), workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
 		if err != nil {
-			log.Printf("The error during saving the task into DB: %s", err)
+			log.Printf("The error during saving the task into DB: %s under workflowId - %s",
+				err, workflow.WorkflowId.String())
 			return err
 		}
 	}

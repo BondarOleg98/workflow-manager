@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     PRIMARY KEY(task_id),
     CONSTRAINT fk_workflow
         FOREIGN KEY(workflow_id)
-            REFERENCES workflows(workflow_id)
+            REFERENCES workflows(workflow_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS actions (
@@ -31,5 +31,5 @@ CREATE TABLE IF NOT EXISTS actions (
     PRIMARY KEY(action_id),
     CONSTRAINT fk_task
         FOREIGN KEY(task_id)
-            REFERENCES tasks(task_id)
+            REFERENCES tasks(task_id) ON DELETE CASCADE
 );
