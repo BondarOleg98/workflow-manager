@@ -39,8 +39,7 @@ func (workflowRepository *WorkflowRepository) GetWorkflowsByPagination(cursor st
 			log.Fatal("The error during closing the reader of the database")
 		}
 	}(rows)
-
-	return mapper.WorkflowsListMapped(rows)
+	return mapper.ListMapped([]models.Workflow{}, rows)
 }
 
 func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string) (models.Workflow, error) {
