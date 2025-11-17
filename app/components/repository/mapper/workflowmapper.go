@@ -3,20 +3,29 @@ package mapper
 import (
 	"database/sql"
 	"log"
+	"reflect"
 	"workflowmanager/app/models"
 )
 
-func WorkflowsListMapped(rows *sql.Rows) ([]models.Workflow, error) {
-	var workflows []models.Workflow
-	for rows.Next() {
-		workflow := models.Workflow{}
-		if err := rows.Scan(&workflow.WorkflowId, &workflow.Name, &workflow.CreatedAt, &workflow.UpdatedAt); err != nil {
+func ListMapped[T any](entities []T, dbRows *sql.Rows) ([]T, error) {
+	for dbRows.Next() {
+		var entity T
+		structValue := reflect.ValueOf(&entity).Elem()
+		numFields := structValue.NumField()
+		var args []interface{}
+		for i := 0; i < numFields; i++ {
+			field := structValue.Field(i).Interface()
+			if reflect.TypeOf(field).Kind() != reflect.Slice {
+				args = append(args, structValue.Field(i).Addr().Interface())
+			}
+		}
+		if err := dbRows.Scan(args...); err != nil {
 			log.Fatalf("The error during mapping data from DB %s", err)
 			return nil, err
 		}
-		workflows = append(workflows, workflow)
+		entities = append(entities, entity)
 	}
-	return workflows, nil
+	return entities, nil
 }
 
 func WorkflowMapped(row *sql.Rows) (models.Workflow, error) {
