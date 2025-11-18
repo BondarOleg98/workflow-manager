@@ -50,12 +50,12 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 	workflowId := ulid.Make()
 	workflow.WorkflowId = workflowId
 	workflow.State = models.CREATED
-	for indexTask := range workflow.Task {
+	for indexTask := range workflow.Tasks {
 		taskId := ulid.Make()
-		workflow.Task[indexTask].TaskId = taskId
-		workflow.Task[indexTask].CreatedAt = createdAt
-		workflow.Task[indexTask].UpdatedAt = createdAt
-		workflow.Task[indexTask].State = models.CREATED
+		workflow.Tasks[indexTask].TaskId = taskId
+		workflow.Tasks[indexTask].CreatedAt = createdAt
+		workflow.Tasks[indexTask].UpdatedAt = createdAt
+		workflow.Tasks[indexTask].State = models.CREATED
 	}
 	err := workflowService.workflowRepository.SaveWorkflow(workflow)
 	if err != nil {
