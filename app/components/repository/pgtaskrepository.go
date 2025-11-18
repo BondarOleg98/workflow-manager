@@ -3,7 +3,9 @@ package repository
 import (
 	"database/sql"
 	"log"
+	"workflowmanager/app/components/repository/mapper"
 	"workflowmanager/app/db/queries"
+	"workflowmanager/app/models"
 )
 
 type PostgresTaskRepository struct {
@@ -17,8 +19,7 @@ func NewTaskRepository(database *sql.DB) *PostgresTaskRepository {
 }
 
 func (postgresTaskRepository *PostgresTaskRepository) RemoveTaskById(taskId string) (int64, error) {
-	database := postgresTaskRepository.database
-	resultDeletedTask, err := database.Exec(queries.RemoveTaskByIdQuery, taskId)
+	resultDeletedTask, err := postgresTaskRepository.database.Exec(queries.RemoveTaskByIdQuery, taskId)
 	if err != nil {
 		log.Printf("The error during deleting the task by Id %s from DB: %s",
 			taskId, err)
@@ -27,4 +28,48 @@ func (postgresTaskRepository *PostgresTaskRepository) RemoveTaskById(taskId stri
 	rowsTasksAffected, _ := resultDeletedTask.RowsAffected()
 	log.Printf("Task by taskId - %s was removed %d", taskId, rowsTasksAffected)
 	return rowsTasksAffected, err
+}
+
+func (postgresTaskRepository *PostgresTaskRepository) GetTasksByPagination(cursor string, pageSize int) ([]models.Task, error) {
+	var rows *sql.Rows
+	var err error
+	if cursor != "" {
+		rows, err = postgresTaskRepository.database.
+			Query(queries.GetTasksByPaginationQuery, cursor, pageSize)
+	} else {
+		rows, err = postgresTaskRepository.database.
+			Query(queries.GetTasksByPaginationWithoutCursorQuery, pageSize)
+	}
+	if err != nil {
+		log.Printf("The error during getting tasks from DB: %s", err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal("The error during closing the reader of the database")
+		}
+	}(rows)
+	return mapper.ListEntitiesMapped([]models.Task{}, rows)
+}
+
+func (postgresTaskRepository *PostgresTaskRepository) GetTaskById(workflowId string) (models.Task, error) {
+	row, err := postgresTaskRepository.database.Query(queries.GetTaskByIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during getting task by id %s from DB: %s", workflowId, err)
+		return models.Task{}, err
+	}
+	defer func(row *sql.Rows) {
+		err := row.Close()
+		if err != nil {
+			log.Fatal("The error during closing the reader of the database")
+		}
+	}(row)
+	isSqlResultEmpty := row.Next()
+	if !isSqlResultEmpty {
+		log.Printf("The error during getting task by id %s from DB: %s",
+			workflowId, sql.ErrNoRows)
+		return models.Task{}, sql.ErrNoRows
+	}
+	return mapper.EntityMapped(models.Task{}, row)
 }

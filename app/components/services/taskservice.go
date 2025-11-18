@@ -3,6 +3,7 @@ package services
 import (
 	"log"
 	"workflowmanager/app/components/repository"
+	"workflowmanager/app/models"
 )
 
 type TaskService struct {
@@ -22,4 +23,20 @@ func (taskService *TaskService) RemoveTaskById(taskId string) error {
 		return nil
 	}
 	return err
+}
+
+func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int) (tasks []models.Task, err error) {
+	tasks, err = taskService.postgresTaskRepository.GetTasksByPagination(cursor, pageSize)
+	if err == nil {
+		log.Printf("Tasks were retrieved")
+	}
+	return
+}
+
+func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, err error) {
+	task, err = taskService.postgresTaskRepository.GetTaskById(taskId)
+	if err == nil {
+		log.Printf("Task by id - %s was retrieved", taskId)
+	}
+	return
 }
