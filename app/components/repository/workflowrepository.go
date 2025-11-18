@@ -39,7 +39,7 @@ func (workflowRepository *WorkflowRepository) GetWorkflowsByPagination(cursor st
 			log.Fatal("The error during closing the reader of the database")
 		}
 	}(rows)
-	return mapper.ListMapped([]models.Workflow{}, rows)
+	return mapper.ListEntitiesMapped([]models.Workflow{}, rows)
 }
 
 func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string) (models.Workflow, error) {
@@ -61,7 +61,7 @@ func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string)
 			workflowId, sql.ErrNoRows)
 		return models.Workflow{}, sql.ErrNoRows
 	}
-	return mapper.WorkflowMapped(row)
+	return mapper.EntityMapped(models.Workflow{}, row)
 }
 
 func (workflowRepository *WorkflowRepository) RemoveWorkflowById(workflowId string) (int64, error) {
@@ -78,7 +78,7 @@ func (workflowRepository *WorkflowRepository) RemoveWorkflowById(workflowId stri
 
 func (workflowRepository *WorkflowRepository) SaveWorkflow(workflow models.Workflow) error {
 	database := workflowRepository.database
-	for _, task := range workflow.Task {
+	for _, task := range workflow.Tasks {
 		_, err := database.Exec(queries.InsertWorkflowQuery,
 			workflow.WorkflowId.String(), workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State)
 		if err != nil {
