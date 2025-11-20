@@ -11,5 +11,5 @@ type Task struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	State     State     `json:"state"`
-	Action    Action    `json:"action"`
+	Action    Action    `json:"-" mapper:"omit"`
 }

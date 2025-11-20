@@ -18,15 +18,15 @@ func ListEntitiesMapped[T any](entities []T, dbRows *sql.Rows) ([]T, error) {
 	return entities, nil
 }
 
-// EntityMapped TODO: fix the issue when
 func EntityMapped[T any](entity T, dbRows *sql.Rows) (T, error) {
 	var err error
 	structValue := reflect.ValueOf(&entity).Elem()
-	numFields := structValue.NumField()
-	var args []interface{}
+	structType := reflect.TypeOf(entity)
+	numFields := structType.NumField()
+	var args []any
 	for i := 0; i < numFields; i++ {
-		field := structValue.Field(i).Interface()
-		if reflect.TypeOf(field).Kind() != reflect.Slice {
+		field := structType.Field(i)
+		if field.Tag.Get("mapper") != "omit" {
 			args = append(args, structValue.Field(i).Addr().Interface())
 		}
 	}

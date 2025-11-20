@@ -11,5 +11,5 @@ type Workflow struct {
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	State      State     `json:"state"`
-	Tasks      []Task    `json:"tasks"`
+	Tasks      []Task    `json:"-" mapper:"omit"`
 }
