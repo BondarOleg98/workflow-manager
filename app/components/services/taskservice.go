@@ -40,3 +40,11 @@ func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, er
 	}
 	return
 }
+
+func (taskService *TaskService) GetTasksByWorkflowId(workflowId string) (tasks []models.Task, err error) {
+	tasks, err = taskService.postgresTaskRepository.GetTasksByWorkflowId(workflowId)
+	if err == nil {
+		log.Printf("Tasks by workflowId %s were retrieved", workflowId)
+	}
+	return
+}

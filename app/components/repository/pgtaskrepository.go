@@ -73,3 +73,18 @@ func (postgresTaskRepository *PostgresTaskRepository) GetTaskById(workflowId str
 	}
 	return mapper.EntityMapped(models.Task{}, row)
 }
+
+func (postgresTaskRepository *PostgresTaskRepository) GetTasksByWorkflowId(workflowId string) ([]models.Task, error) {
+	rows, err := postgresTaskRepository.database.Query(queries.GetTasksByWorkflowIdQuery, workflowId)
+	if err != nil {
+		log.Printf("The error during getting tasks by workflowId %s from DB: %s", workflowId, err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal("The error during closing the reader of the database")
+		}
+	}(rows)
+	return mapper.ListEntitiesMapped([]models.Task{}, rows)
+}

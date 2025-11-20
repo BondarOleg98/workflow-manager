@@ -25,13 +25,15 @@ func NewTaskController(
 
 func (taskController *TaskController) AddTaskHandlers() {
 	log.Println("Add the task controller")
-	baseWorkflowRoute := "/api/v1/task"
+	baseWorkflowRoute := "/api/v1/tasks"
 	http.Handle(fmt.Sprintf("GET %s", baseWorkflowRoute),
 		taskController.preAuthorize.SecurityFilterChain(http.HandlerFunc(taskController.getTaskByPagination)))
 	http.Handle(fmt.Sprintf("GET %s/{taskId}", baseWorkflowRoute),
 		taskController.preAuthorize.SecurityFilterChain(http.HandlerFunc(taskController.getTaskById)))
 	http.Handle(fmt.Sprintf("DELETE %s/remove/{taskId}", baseWorkflowRoute),
 		taskController.preAuthorize.SecurityFilterChain(http.HandlerFunc(taskController.removeTaskById)))
+	http.Handle(fmt.Sprintf("GET %s/workflow/{workflowId}", baseWorkflowRoute),
+		taskController.preAuthorize.SecurityFilterChain(http.HandlerFunc(taskController.getTasksByWorkflowId)))
 }
 
 func (taskController *TaskController) removeTaskById(responseWriter http.ResponseWriter, request *http.Request) {
@@ -71,6 +73,20 @@ func (taskController *TaskController) getTaskById(
 	task, err := taskController.taskService.GetTaskById(taskId)
 	if err != nil {
 		errorMsg := fmt.Sprintf("the task with id - %s", taskId)
+		http.Error(responseWriter, errorMsg, http.StatusNotFound)
+	} else {
+		responseWriter.WriteHeader(http.StatusOK)
+		buildResponseBody(task, responseWriter)
+	}
+}
+
+func (taskController *TaskController) getTasksByWorkflowId(
+	responseWriter http.ResponseWriter, request *http.Request) {
+	taskController.preAuthorize.IsAuthorised(responseWriter, request)
+	workflowId := request.PathValue("workflowId")
+	task, err := taskController.taskService.GetTasksByWorkflowId(workflowId)
+	if err != nil {
+		errorMsg := fmt.Sprintf("tasks by workflow id - %s", workflowId)
 		http.Error(responseWriter, errorMsg, http.StatusNotFound)
 	} else {
 		responseWriter.WriteHeader(http.StatusOK)
