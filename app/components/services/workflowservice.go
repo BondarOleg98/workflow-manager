@@ -44,10 +44,19 @@ func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) er
 }
 
 func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
-	workflow.CreatedAt = time.Now()
-	workflow.UpdatedAt = workflow.CreatedAt
+	createdAt := time.Now()
+	workflow.CreatedAt = createdAt
+	workflow.UpdatedAt = createdAt
 	workflowId := ulid.Make()
 	workflow.WorkflowId = workflowId
+	workflow.State = models.CREATED
+	for indexTask := range workflow.Tasks {
+		taskId := ulid.Make()
+		workflow.Tasks[indexTask].TaskId = taskId
+		workflow.Tasks[indexTask].CreatedAt = createdAt
+		workflow.Tasks[indexTask].UpdatedAt = createdAt
+		workflow.Tasks[indexTask].State = models.CREATED
+	}
 	err := workflowService.workflowRepository.SaveWorkflow(workflow)
 	if err != nil {
 		return err

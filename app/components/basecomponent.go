@@ -15,18 +15,22 @@ func InitAppComponents() {
 	dbInstance := db.GetDatabaseInstance()
 
 	workflowRepository := repository.NewWorkflowRepository(dbInstance)
+	taskRepository := repository.NewTaskRepository(dbInstance)
 	userRepository := repository.NewPostgresUserRepository(dbInstance)
 	refreshTokenRepository := repository.NewPostgresRefreshTokenRepository(dbInstance)
 
 	workflowService := services.NewWorkflowService(workflowRepository)
+	taskService := services.NewTaskService(taskRepository)
 	authService := services.NewAuthService(userRepository, refreshTokenRepository)
 
 	preAuthorize := security.NewPreAuthorize(authService)
 	authController := controllers.NewAuthController(authService)
 	workflowController := controllers.NewWorkflowController(workflowService, preAuthorize)
+	taskController := controllers.NewTaskController(taskService, preAuthorize)
 
 	authController.AddAuthHandlers()
 	workflowController.AddWorkflowHandlers()
+	taskController.AddTaskHandlers()
 
 	http.HandleFunc("/", notFoundHandler)
 }

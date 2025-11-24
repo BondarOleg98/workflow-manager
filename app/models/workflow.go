@@ -6,8 +6,10 @@ import (
 )
 
 type Workflow struct {
-	WorkflowId ulid.ULID `json:"id"`
+	WorkflowId ulid.ULID `json:"workflow_id"`
 	Name       string    `json:"name"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
+	State      State     `json:"state"`
+	Tasks      []Task    `json:"-" mapper:"omit"`
 }

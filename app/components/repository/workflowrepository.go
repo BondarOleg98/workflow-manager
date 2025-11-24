@@ -39,8 +39,7 @@ func (workflowRepository *WorkflowRepository) GetWorkflowsByPagination(cursor st
 			log.Fatal("The error during closing the reader of the database")
 		}
 	}(rows)
-
-	return mapper.WorkflowsListMapped(rows)
+	return mapper.ListEntitiesMapped([]models.Workflow{}, rows)
 }
 
 func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string) (models.Workflow, error) {
@@ -62,45 +61,11 @@ func (workflowRepository *WorkflowRepository) GetWorkflowById(workflowId string)
 			workflowId, sql.ErrNoRows)
 		return models.Workflow{}, sql.ErrNoRows
 	}
-	return mapper.WorkflowMapped(row)
-}
-
-func (workflowRepository *WorkflowRepository) removeTasksByWorkflowId(workflowId string) (int64, error) {
-	database := workflowRepository.database
-	_, err := workflowRepository.removeActionsByWorkflowId(workflowId)
-	if err != nil {
-		return 0, err
-	}
-	resultDeletedTasks, err := database.Exec(queries.RemoveTasksByWorkflowIdQuery, workflowId)
-	if err != nil {
-		log.Printf("The error during deleting tasks by workflow id %s from DB: %s",
-			workflowId, err)
-		return 0, err
-	}
-	rowsTasksAffected, _ := resultDeletedTasks.RowsAffected()
-	log.Printf("Tasks by workflowId - %s were removed %d", workflowId, rowsTasksAffected)
-	return rowsTasksAffected, err
-}
-
-func (workflowRepository *WorkflowRepository) removeActionsByWorkflowId(workflowId string) (int64, error) {
-	database := workflowRepository.database
-	resultDeletedActions, err := database.Exec(queries.RemoveActionsByTaskIdQuery, workflowId)
-	if err != nil {
-		log.Printf("The error during deleting actions by workflow id %s from DB: %s",
-			workflowId, err)
-		return 0, err
-	}
-	rowsActionsAffected, _ := resultDeletedActions.RowsAffected()
-	log.Printf("Actions by workflowId - %s were removed %d", workflowId, rowsActionsAffected)
-	return rowsActionsAffected, err
+	return mapper.EntityMapped(models.Workflow{}, row)
 }
 
 func (workflowRepository *WorkflowRepository) RemoveWorkflowById(workflowId string) (int64, error) {
 	database := workflowRepository.database
-	_, err := workflowRepository.removeTasksByWorkflowId(workflowId)
-	if err != nil {
-		return 0, err
-	}
 	resultDeletedWorkflows, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
 	if err != nil {
 		log.Printf("The error during deleting workflows by workflow id %s from DB: %s",
@@ -113,11 +78,20 @@ func (workflowRepository *WorkflowRepository) RemoveWorkflowById(workflowId stri
 
 func (workflowRepository *WorkflowRepository) SaveWorkflow(workflow models.Workflow) error {
 	database := workflowRepository.database
-	_, err := database.Exec(queries.InsertWorkflowQuery,
-		workflow.WorkflowId.String(), workflow.Name, workflow.UpdatedAt, workflow.CreatedAt)
-	if err != nil {
-		log.Printf("The error during saving the workflow into DB: %s", err)
-		return err
+	for _, task := range workflow.Tasks {
+		_, err := database.Exec(queries.InsertWorkflowQuery,
+			workflow.WorkflowId.String(), workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State)
+		if err != nil {
+			log.Printf("The error during saving the workflow into DB: %s", err)
+			return err
+		}
+		_, err = database.Exec(queries.InsertTaskQuery,
+			task.TaskId.String(), workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
+		if err != nil {
+			log.Printf("The error during saving the task into DB: %s under workflowId - %s",
+				err, workflow.WorkflowId.String())
+			return err
+		}
 	}
 	return nil
 }
