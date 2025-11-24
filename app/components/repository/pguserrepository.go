@@ -15,8 +15,8 @@ func NewPostgresUserRepository(database *sql.DB) *PostgresUserRepository {
 	return &PostgresUserRepository{database: database}
 }
 
-func (PostgresUserRepository *PostgresUserRepository) CreateUser(newUser models.User) (*models.User, error) {
-	_, err := PostgresUserRepository.database.Exec(
+func (postgresUserRepository *PostgresUserRepository) CreateUser(newUser models.User) (*models.User, error) {
+	_, err := postgresUserRepository.database.Exec(
 		queries.SaveUserQuery, newUser.Id.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
 	if err != nil {
 		return nil, err
@@ -24,10 +24,10 @@ func (PostgresUserRepository *PostgresUserRepository) CreateUser(newUser models.
 	return &newUser, nil
 }
 
-func (PostgresUserRepository *PostgresUserRepository) GetUserByEmail(email string) (*models.User, error) {
+func (postgresUserRepository *PostgresUserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
 	var lastLogin sql.NullTime
-	err := PostgresUserRepository.database.QueryRow(queries.GetUserByEmailQuery, email).
+	err := postgresUserRepository.database.QueryRow(queries.GetUserByEmailQuery, email).
 		Scan(
 			&user.Id, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.LastLogin,
 		)
@@ -40,10 +40,10 @@ func (PostgresUserRepository *PostgresUserRepository) GetUserByEmail(email strin
 	return &user, nil
 }
 
-func (PostgresUserRepository *PostgresUserRepository) GetUserById(id ulid.ULID) (*models.User, error) {
+func (postgresUserRepository *PostgresUserRepository) GetUserById(id ulid.ULID) (*models.User, error) {
 	var user models.User
 	var lastLogin sql.NullTime
-	err := PostgresUserRepository.database.QueryRow(queries.GetUserByIdQuery, id.String()).Scan(
+	err := postgresUserRepository.database.QueryRow(queries.GetUserByIdQuery, id.String()).Scan(
 		&user.Id, &user.Email, &user.Username, &user.Password, &user.CreatedAt, &lastLogin,
 	)
 	if err != nil {
