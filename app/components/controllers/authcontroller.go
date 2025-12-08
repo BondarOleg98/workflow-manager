@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/requestmodels"
+	"workflowmanager/app/models/responsemodels"
 )
 
 type AuthController struct {
@@ -30,7 +32,7 @@ func (authController AuthController) AddAuthHandlers() {
 
 func (authController AuthController) registerUser(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	var registerRequest models.RegisterRequest
+	var registerRequest requestmodels.RegisterRequest
 	var err error
 	if err = json.NewDecoder(request.Body).Decode(&registerRequest); err != nil {
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
@@ -50,7 +52,7 @@ func (authController AuthController) registerUser(
 		return
 	}
 	responseWriter.WriteHeader(http.StatusCreated)
-	buildResponseBody(models.RegisterResponse{
+	buildResponseBody(responsemodels.RegisterResponse{
 		Id:       createdUser.Id.String(),
 		Email:    createdUser.Email,
 		Username: createdUser.Username,
@@ -59,7 +61,7 @@ func (authController AuthController) registerUser(
 
 func (authController AuthController) loginUser(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	var loginRequest models.LoginRequest
+	var loginRequest requestmodels.LoginRequest
 	err := json.NewDecoder(request.Body).Decode(&loginRequest)
 	if err != nil {
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
@@ -74,7 +76,7 @@ func (authController AuthController) loginUser(
 		}
 		return
 	}
-	buildResponseBody(models.LoginResponse{
+	buildResponseBody(responsemodels.LoginResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, responseWriter)
@@ -82,9 +84,9 @@ func (authController AuthController) loginUser(
 
 func (authController AuthController) refreshToken(
 	responseWriter http.ResponseWriter, request *http.Request) {
-	var req models.RefreshRequest
+	var req requestmodels.RefreshRequest
 	if err := json.NewDecoder(request.Body).Decode(&req); err != nil {
-		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
+		http.Error(responseWriter, "the invalid requestmodels payload", http.StatusBadRequest)
 		return
 	}
 	accessToken, err := authController.authService.RefreshAccessToken(req.RefreshToken)
@@ -97,5 +99,5 @@ func (authController AuthController) refreshToken(
 		}
 		return
 	}
-	buildResponseBody(models.RefreshResponse{AccessToken: accessToken}, responseWriter)
+	buildResponseBody(responsemodels.RefreshResponse{AccessToken: accessToken}, responseWriter)
 }

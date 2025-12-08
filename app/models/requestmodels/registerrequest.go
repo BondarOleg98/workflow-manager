@@ -1,4 +1,4 @@
-package models
+package requestmodels
 
 type RegisterRequest struct {
 	Email    string `json:"email"`

@@ -10,6 +10,7 @@ import (
 	"time"
 	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/requestmodels"
 	"workflowmanager/app/util"
 )
 
@@ -30,7 +31,7 @@ func NewAuthService(userRepository repository.UserRepository,
 	}
 }
 
-func (authService *AuthService) RegisterUsingCredentials(registerRequest models.RegisterRequest) (*models.User, error) {
+func (authService *AuthService) RegisterUsingCredentials(registerRequest requestmodels.RegisterRequest) (*models.User, error) {
 	retrievedUser, err := authService.userRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
 		slog.Info("retrieved the user by", "email", retrievedUser.Email)
@@ -57,7 +58,7 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest models.
 	return createdUser, nil
 }
 
-func (authService *AuthService) Login(loginRequest models.LoginRequest) (string, string, error) {
+func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (string, string, error) {
 	retrievedUser, err := authService.userRepository.GetUserByEmail(loginRequest.Email)
 	if err != nil {
 		return "", "", models.ErrInvalidCredentials
