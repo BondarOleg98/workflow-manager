@@ -7,17 +7,17 @@ import (
 )
 
 type TaskService struct {
-	postgresTaskRepository *repository.PostgresTaskRepository
+	taskRepository repository.TaskRepository
 }
 
-func NewTaskService(postgresTaskRepository *repository.PostgresTaskRepository) *TaskService {
+func NewTaskService(taskRepository repository.TaskRepository) *TaskService {
 	return &TaskService{
-		postgresTaskRepository: postgresTaskRepository,
+		taskRepository: taskRepository,
 	}
 }
 
 func (taskService *TaskService) RemoveTaskById(taskId string) error {
-	rowsTasksAffected, err := taskService.postgresTaskRepository.RemoveTaskById(taskId)
+	rowsTasksAffected, err := taskService.taskRepository.RemoveTaskById(taskId)
 	if err == nil {
 		log.Printf("Task by id - %s was removed %d", taskId, rowsTasksAffected)
 		return nil
@@ -26,7 +26,7 @@ func (taskService *TaskService) RemoveTaskById(taskId string) error {
 }
 
 func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int) (tasks []models.Task, err error) {
-	tasks, err = taskService.postgresTaskRepository.GetTasksByPagination(cursor, pageSize)
+	tasks, err = taskService.taskRepository.GetTasksByPagination(cursor, pageSize)
 	if err == nil {
 		log.Printf("Tasks were retrieved")
 	}
@@ -34,7 +34,7 @@ func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int
 }
 
 func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, err error) {
-	task, err = taskService.postgresTaskRepository.GetTaskById(taskId)
+	task, err = taskService.taskRepository.GetTaskById(taskId)
 	if err == nil {
 		log.Printf("Task by id - %s was retrieved", taskId)
 	}
@@ -42,7 +42,7 @@ func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, er
 }
 
 func (taskService *TaskService) GetTasksByWorkflowId(workflowId string) (tasks []models.Task, err error) {
-	tasks, err = taskService.postgresTaskRepository.GetTasksByWorkflowId(workflowId)
+	tasks, err = taskService.taskRepository.GetTasksByWorkflowId(workflowId)
 	if err == nil {
 		log.Printf("Tasks by workflowId %s were retrieved", workflowId)
 	}
