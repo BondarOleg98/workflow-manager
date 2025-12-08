@@ -9,10 +9,10 @@ import (
 )
 
 type WorkflowService struct {
-	workflowRepository *repository.WorkflowRepository
+	workflowRepository repository.WorkflowRepository
 }
 
-func NewWorkflowService(workflowRepository *repository.WorkflowRepository) *WorkflowService {
+func NewWorkflowService(workflowRepository repository.WorkflowRepository) *WorkflowService {
 	return &WorkflowService{
 		workflowRepository: workflowRepository,
 	}
@@ -45,8 +45,6 @@ func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) er
 
 func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
 	createdAt := time.Now()
-	workflow.CreatedAt = createdAt
-	workflow.UpdatedAt = createdAt
 	workflowId := ulid.Make()
 	workflow.WorkflowId = workflowId
 	workflow.State = models.CREATED
