@@ -14,8 +14,8 @@ func InitAppComponents() {
 	log.Println("Init app components")
 	dbInstance := db.GetDatabaseInstance()
 
-	workflowRepository := repository.NewWorkflowRepository(dbInstance)
-	taskRepository := repository.NewTaskRepository(dbInstance)
+	workflowRepository := repository.NewPostgresWorkflowRepository(dbInstance)
+	taskRepository := repository.NewPostgresTaskRepository(dbInstance)
 	userRepository := repository.NewPostgresUserRepository(dbInstance)
 	refreshTokenRepository := repository.NewPostgresRefreshTokenRepository(dbInstance)
 

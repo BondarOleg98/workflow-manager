@@ -12,7 +12,7 @@ type PostgresTaskRepository struct {
 	database *sql.DB
 }
 
-func NewTaskRepository(database *sql.DB) *PostgresTaskRepository {
+func NewPostgresTaskRepository(database *sql.DB) *PostgresTaskRepository {
 	return &PostgresTaskRepository{
 		database: database,
 	}

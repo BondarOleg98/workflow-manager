@@ -1,4 +1,4 @@
-package models
+package responsemodels
 
 type RegisterResponse struct {
 	Id       string `json:"id"`

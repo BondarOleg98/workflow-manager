@@ -5,16 +5,17 @@ import (
 	"testing"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/requestmodels"
 	"workflowmanager/app/util"
 )
 
-var registerRequest = models.RegisterRequest{
+var registerRequest = requestmodels.RegisterRequest{
 	Email:    "test",
 	Password: "test",
 	Username: "test",
 }
 
-var loginRequest = models.LoginRequest{
+var loginRequest = requestmodels.LoginRequest{
 	Email:    "test",
 	Password: "test",
 }

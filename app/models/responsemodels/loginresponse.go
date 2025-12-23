@@ -1,4 +1,4 @@
-package models
+package responsemodels
 
 type LoginResponse struct {
 	AccessToken  string `json:"access_token"`

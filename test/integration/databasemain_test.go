@@ -14,7 +14,7 @@ func TestDatabaseMain(test *testing.T) {
 	}
 	db.InitDatabaseInstance(pool)
 	defer db.CloseDatabaseConnection()
-	workflowRepository := repository.NewWorkflowRepository(db.GetDatabaseInstance())
+	workflowRepository := repository.NewPostgresWorkflowRepository(db.GetDatabaseInstance())
 	workflowService := services.NewWorkflowService(workflowRepository)
 	workflowServiceTest := NewWorkflowServiceTest(workflowService)
 
