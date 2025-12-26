@@ -2,7 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
 )
@@ -17,7 +17,7 @@ func NewPostgresUserRepository(database *sql.DB) *PostgresUserRepository {
 
 func (postgresUserRepository *PostgresUserRepository) CreateUser(newUser models.User) (*models.User, error) {
 	_, err := postgresUserRepository.database.Exec(
-		queries.SaveUserQuery, newUser.Id.String(), newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
+		queries.SaveUserQuery, newUser.Email, newUser.Username, newUser.Password, newUser.CreatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (postgresUserRepository *PostgresUserRepository) GetUserByEmail(email strin
 	return &user, nil
 }
 
-func (postgresUserRepository *PostgresUserRepository) GetUserById(id ulid.ULID) (*models.User, error) {
+func (postgresUserRepository *PostgresUserRepository) GetUserById(id uuid.UUID) (*models.User, error) {
 	var user models.User
 	var lastLogin sql.NullTime
 	err := postgresUserRepository.database.QueryRow(queries.GetUserByIdQuery, id.String()).Scan(

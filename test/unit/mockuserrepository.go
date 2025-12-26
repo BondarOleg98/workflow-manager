@@ -3,7 +3,7 @@ package unit
 import (
 	"database/sql"
 	"fmt"
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"workflowmanager/app/models"
 )
 
@@ -24,7 +24,7 @@ func (mockUserRepository *MockUserRepository) GetUserByEmail(email string) (*mod
 	return nil, sql.ErrNoRows
 }
 
-func (mockUserRepository *MockUserRepository) GetUserById(id ulid.ULID) (*models.User, error) {
+func (mockUserRepository *MockUserRepository) GetUserById(id uuid.UUID) (*models.User, error) {
 	for _, retrievedUser := range mockUserRepository.users {
 		if retrievedUser.Id == id {
 			return &retrievedUser, nil

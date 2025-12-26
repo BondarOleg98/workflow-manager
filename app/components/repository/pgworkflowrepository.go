@@ -79,14 +79,14 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) RemoveWorkflowById
 func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workflow models.Workflow) error {
 	database := postgresWorkflowRepository.database
 	for _, task := range workflow.Tasks {
-		_, err := database.Exec(queries.InsertWorkflowQuery,
-			workflow.WorkflowId.String(), workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State)
-		if err != nil {
-			log.Printf("The error during saving the workflow into DB: %s", err)
-			return err
-		}
+		err := database.QueryRow(queries.InsertWorkflowQuery,
+			workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State).Scan(&workflow.WorkflowId)
+		//if err != nil {
+		//	log.Printf("The error during saving the workflow into DB: %s", err)
+		//	return err
+		//}
 		_, err = database.Exec(queries.InsertTaskQuery,
-			task.TaskId.String(), workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
+			workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
 		if err != nil {
 			log.Printf("The error during saving the task into DB: %s under workflowId - %s",
 				err, workflow.WorkflowId.String())

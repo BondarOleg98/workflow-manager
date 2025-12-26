@@ -1,13 +1,13 @@
 package models
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"time"
 )
 
 type RefreshToken struct {
-	Id        ulid.ULID
-	UserId    ulid.ULID
+	Id        uuid.UUID
+	UserId    uuid.UUID
 	Token     string
 	ExpiredAt time.Time
 	CreatedAt time.Time

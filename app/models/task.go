@@ -1,12 +1,12 @@
 package models
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"time"
 )
 
 type Task struct {
-	TaskId    ulid.ULID `json:"task_id"`
+	TaskId    uuid.UUID `json:"task_id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

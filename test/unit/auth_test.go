@@ -1,7 +1,7 @@
 package unit
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"testing"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
@@ -70,7 +70,7 @@ func TestAuthServiceLoginUsingCredentials(test *testing.T) {
 	if !isContextKeyExist {
 		test.Errorf("invalid token claims")
 	}
-	_, err = ulid.Parse(userIdClaim)
+	_, err = uuid.Parse(userIdClaim)
 	if err != nil {
 		test.Errorf("invalid userId")
 	}

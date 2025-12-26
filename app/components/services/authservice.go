@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"log/slog"
 	"os"
 	"time"
@@ -50,7 +50,6 @@ func (authService *AuthService) RegisterUsingCredentials(registerRequest request
 		Username:  registerRequest.Username,
 		Password:  hashedPassword,
 		CreatedAt: time.Now(),
-		Id:        ulid.Make(),
 	})
 	if err != nil {
 		return nil, err
@@ -71,10 +70,9 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 	if err != nil {
 		return "", "", err
 	}
-	refreshTokenId := ulid.Make()
+	refreshTokenId, _ := uuid.NewV7()
 	expiresAt := time.Now().Add(authService.refreshTokenTTL)
 	refreshToken := models.RefreshToken{
-		Id:        refreshTokenId,
 		UserId:    retrievedUser.Id,
 		Token:     refreshTokenId.String(),
 		ExpiredAt: expiresAt,

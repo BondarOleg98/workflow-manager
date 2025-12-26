@@ -1,12 +1,12 @@
 package models
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"time"
 )
 
 type User struct {
-	Id        ulid.ULID
+	Id        uuid.UUID
 	Email     string
 	Username  string
 	Password  string

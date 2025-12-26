@@ -1,7 +1,6 @@
 package services
 
 import (
-	"github.com/oklog/ulid/v2"
 	"log"
 	"time"
 	"workflowmanager/app/components/repository"
@@ -45,12 +44,8 @@ func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) er
 
 func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
 	createdAt := time.Now()
-	workflowId := ulid.Make()
-	workflow.WorkflowId = workflowId
 	workflow.State = models.CREATED
 	for indexTask := range workflow.Tasks {
-		taskId := ulid.Make()
-		workflow.Tasks[indexTask].TaskId = taskId
 		workflow.Tasks[indexTask].CreatedAt = createdAt
 		workflow.Tasks[indexTask].UpdatedAt = createdAt
 		workflow.Tasks[indexTask].State = models.CREATED
@@ -59,6 +54,6 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 	if err != nil {
 		return err
 	}
-	log.Printf("The workflow with id: %s was created", workflowId)
+	log.Printf("The workflow with name: %s was created", workflow.Name)
 	return nil
 }
