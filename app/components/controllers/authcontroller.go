@@ -53,7 +53,6 @@ func (authController AuthController) registerUser(
 	}
 	responseWriter.WriteHeader(http.StatusCreated)
 	buildResponseBody(responsemodels.RegisterResponse{
-		Id:       createdUser.Id.String(),
 		Email:    createdUser.Email,
 		Username: createdUser.Username,
 	}, responseWriter)

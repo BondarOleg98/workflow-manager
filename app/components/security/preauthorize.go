@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -40,7 +40,7 @@ func (preAuthorize *PreAuthorize) SecurityFilterChain(handler http.Handler) http
 			http.Error(responseWriter, err.Error(), http.StatusUnauthorized)
 			return
 		}
-		userId, err := ulid.Parse(userIdClaim)
+		userId, err := uuid.Parse(userIdClaim)
 		if err != nil {
 			http.Error(responseWriter, "Invalid userId in token", http.StatusUnauthorized)
 			return
@@ -85,7 +85,7 @@ func (preAuthorize *PreAuthorize) validateSubClaims(claims jwt.MapClaims) (strin
 	return userId, nil
 }
 
-func (preAuthorize *PreAuthorize) getUserId(request *http.Request) (ulid.ULID, bool) {
-	userId, isContextKeyExist := request.Context().Value(UserIdKey).(ulid.ULID)
+func (preAuthorize *PreAuthorize) getUserId(request *http.Request) (uuid.UUID, bool) {
+	userId, isContextKeyExist := request.Context().Value(UserIdKey).(uuid.UUID)
 	return userId, isContextKeyExist
 }

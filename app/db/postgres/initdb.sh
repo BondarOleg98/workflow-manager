@@ -8,6 +8,17 @@ runSQL() {
   echo "${script_result}"
 }
 
+createRole() {
+  local pg_admin_connection_url
+  local create_role_query
+  local alter_user_query
+  pg_admin_connection_url="postgres://:@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_ADMIN_DB}"
+  create_role_query="CREATE ROLE ${POSTGRES_USER} LOGIN PASSWORD '${POSTGRES_PASSWORD}'"
+  alter_user_query="ALTER USER ${POSTGRES_USER} WITH CREATEDB"
+  psql "${pg_admin_connection_url}" -tc "${create_role_query}"
+  psql "${pg_admin_connection_url}" -tc "${alter_user_query}"
+}
+
 isDatabaseExists() {
   local exists_db_query
   exists_db_query="SELECT CAST(EXISTS(SELECT datname from pg_database WHERE datname='${POSTGRES_DB}') AS TEXT);"
@@ -54,10 +65,17 @@ createDatabase() {
   runSQL "${POSTGRES_ADMIN_DB}" "-tc" "${create_db_query}"
 }
 
-grantPrivileges() {
+grantPrivilegesSchema() {
+  local grant_schema_query
+  logInfo "Grant privileges on schema"
+  grant_schema_query="GRANT ALL PRIVILEGES ON SCHEMA public TO ${POSTGRES_USER};"
+  runSQL "${POSTGRES_DB}" "-tc" "${grant_schema_query}"
+}
+
+grantPrivilegesDatabase() {
   local grant_privileges_query
-  logInfo "Grant privileges"
-  grant_privileges_query="GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DB} to ${POSTGRES_USER}"
+  logInfo "Grant privileges on database"
+  grant_privileges_query="GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_DB} TO ${POSTGRES_USER}"
   runSQL "${POSTGRES_ADMIN_DB}" "-tc" "${grant_privileges_query}"
 }
 
@@ -74,9 +92,11 @@ fillDatabase() {
 
 main() {
   declare -a tables=([0]=workflows [1]=tasks [2]=actions)
+  createRole
   if ! isDatabaseExists; then
+    grantPrivilegesSchema
     createDatabase
-    grantPrivileges
+    grantPrivilegesDatabase
   fi
   if ! areTablesExist "${tables[@]}"; then
     createTablesAndRelationships

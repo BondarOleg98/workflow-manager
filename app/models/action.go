@@ -1,12 +1,12 @@
 package models
 
 import (
-	"github.com/oklog/ulid/v2"
+	"github.com/google/uuid"
 	"time"
 )
 
 type Action struct {
-	ActionId  ulid.ULID `json:"action_id"`
+	ActionId  uuid.UUID `json:"action_id"`
 	Name      string    `json:"name"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`

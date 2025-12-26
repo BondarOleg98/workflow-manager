@@ -1,4 +1,4 @@
--- DB version 2.0 schema
+-- DB schema version 2.0
 CREATE EXTENSION IF NOT EXISTS ulid;
 
 CREATE OR REPLACE PROCEDURE fill_workflow_table(entities_counts jsonb)
