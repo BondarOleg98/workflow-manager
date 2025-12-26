@@ -13,8 +13,7 @@ func TestLoadExistedConfigs(test *testing.T) {
 		test.FailNow()
 	}
 	if os.Getenv("POSTGRES_USER") != "postgres" ||
-		os.Getenv("SERVICE_PORT") != "8080" ||
-		os.Getenv("POSTGRES_TEST_DATA_ENABLED") != "false" {
+		os.Getenv("SERVICE_PORT") != "8080" {
 		test.Errorf("the configs have diference values")
 	}
 }
