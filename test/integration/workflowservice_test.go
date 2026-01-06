@@ -56,7 +56,7 @@ func (workflowServiceTest *WorkflowServiceTest) testSaveWorkflow(test *testing.T
 	for _, workflow := range expectedWorkflows {
 		err := workflowServiceTest.workflowService.SaveWorkflow(workflow)
 		assert.Nil(test, err, "the error during saving the workflow")
-		gotWorkflowByPaginationWithoutCursor, err :=
+		gotWorkflowByPaginationWithoutCursor, _ :=
 			workflowServiceTest.workflowService.GetWorkflowsByPagination("", pageSizeOneElement)
 		assert.Equal(test, workflow.Name, gotWorkflowByPaginationWithoutCursor[0].Name,
 			"the data between expected and actual workflows are different")
@@ -76,7 +76,7 @@ func (workflowServiceTest *WorkflowServiceTest) testGetWorkflowsByPaginationWith
 
 func (workflowServiceTest *WorkflowServiceTest) testGetWorkflowsByPaginationUsingCursor(test *testing.T) {
 	var cursor string
-	gotWorkflowsByPaginationWithoutCursor, err :=
+	gotWorkflowsByPaginationWithoutCursor, _ :=
 		workflowServiceTest.workflowService.GetWorkflowsByPagination(cursor, pageSizeOneElement)
 	gotWorkflowsByPaginationUsingCursor, err :=
 		workflowServiceTest.workflowService.GetWorkflowsByPagination(
@@ -90,10 +90,10 @@ func (workflowServiceTest *WorkflowServiceTest) testGetWorkflowsByPaginationUsin
 
 func (workflowServiceTest *WorkflowServiceTest) testRemoveWorkflowById(test *testing.T) {
 	var cursor string
-	gotWorkflowsByPaginationUsingCursor, err :=
+	gotWorkflowsByPaginationUsingCursor, _ :=
 		workflowServiceTest.workflowService.GetWorkflowsByPagination(cursor, pageSizeSeveralElements)
 	for _, workflow := range gotWorkflowsByPaginationUsingCursor {
-		err = workflowServiceTest.workflowService.RemoveWorkflowById(workflow.WorkflowId.String())
+		err := workflowServiceTest.workflowService.RemoveWorkflowById(workflow.WorkflowId.String())
 		assert.Nil(test, err, "the error during removing the workflow by id")
 		_, err = workflowServiceTest.workflowService.GetWorkflowById(workflow.WorkflowId.String())
 		assert.NotNil(test, err, "the workflow by id was not deleted")
