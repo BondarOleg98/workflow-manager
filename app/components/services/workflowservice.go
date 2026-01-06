@@ -45,6 +45,8 @@ func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) er
 func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
 	createdAt := time.Now()
 	workflow.State = models.CREATED
+	workflow.CreatedAt = createdAt
+	workflow.UpdatedAt = createdAt
 	for indexTask := range workflow.Tasks {
 		workflow.Tasks[indexTask].CreatedAt = createdAt
 		workflow.Tasks[indexTask].UpdatedAt = createdAt
