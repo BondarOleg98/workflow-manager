@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"workflowmanager/app/components/security"
@@ -26,7 +26,7 @@ func NewWorkflowController(
 }
 
 func (workflowController *WorkflowController) AddWorkflowHandlers() {
-	log.Println("Add the workflow controller")
+	slog.Debug("Add the workflow controller")
 	baseWorkflowRoute := "/api/v1/workflows"
 	http.Handle(fmt.Sprintf("GET %s", baseWorkflowRoute),
 		workflowController.preAuthorize.SecurityFilterChain(http.HandlerFunc(workflowController.getWorkflowsByPagination)))

@@ -2,6 +2,7 @@ package services
 
 import (
 	"log"
+	"log/slog"
 	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
 )
@@ -19,7 +20,7 @@ func NewTaskService(taskRepository repository.TaskRepository) *TaskService {
 func (taskService *TaskService) RemoveTaskById(taskId string) error {
 	rowsTasksAffected, err := taskService.taskRepository.RemoveTaskById(taskId)
 	if err == nil {
-		log.Printf("Task by id - %s was removed %d", taskId, rowsTasksAffected)
+		slog.Info("Task by id - %s was removed %d", taskId, rowsTasksAffected)
 		return nil
 	}
 	return err
@@ -28,7 +29,7 @@ func (taskService *TaskService) RemoveTaskById(taskId string) error {
 func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int) (tasks []models.Task, err error) {
 	tasks, err = taskService.taskRepository.GetTasksByPagination(cursor, pageSize)
 	if err == nil {
-		log.Printf("Tasks were retrieved")
+		slog.Info("Tasks were retrieved")
 	}
 	return
 }
@@ -36,7 +37,7 @@ func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int
 func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, err error) {
 	task, err = taskService.taskRepository.GetTaskById(taskId)
 	if err == nil {
-		log.Printf("Task by id - %s was retrieved", taskId)
+		slog.Info("Task by id - %s was retrieved", taskId)
 	}
 	return
 }

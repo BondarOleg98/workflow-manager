@@ -1,7 +1,7 @@
 package services
 
 import (
-	"log"
+	"log/slog"
 	"time"
 	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
@@ -20,7 +20,7 @@ func NewWorkflowService(workflowRepository repository.WorkflowRepository) *Workf
 func (workflowService *WorkflowService) GetWorkflowsByPagination(cursor string, pageSize int) (workflows []models.Workflow, err error) {
 	workflows, err = workflowService.workflowRepository.GetWorkflowsByPagination(cursor, pageSize)
 	if err == nil {
-		log.Printf("Workflows were retrieved")
+		slog.Info("Workflows were retrieved")
 	}
 	return
 }
@@ -28,7 +28,7 @@ func (workflowService *WorkflowService) GetWorkflowsByPagination(cursor string, 
 func (workflowService *WorkflowService) GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	workflow, err = workflowService.workflowRepository.GetWorkflowById(workflowId)
 	if err == nil {
-		log.Printf("Workflow by id - %s was retrieved", workflowId)
+		slog.Info("Workflow by id - %s was retrieved", workflowId)
 	}
 	return
 }
@@ -36,7 +36,7 @@ func (workflowService *WorkflowService) GetWorkflowById(workflowId string) (work
 func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) error {
 	rowsWorkflowsAffected, err := workflowService.workflowRepository.RemoveWorkflowById(workflowId)
 	if err == nil {
-		log.Printf("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
+		slog.Info("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
 		return nil
 	}
 	return err
@@ -56,6 +56,6 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 	if err != nil {
 		return err
 	}
-	log.Printf("The workflow with name: %s was created", workflow.Name)
+	slog.Info("The workflow with name: %s was created", workflow.Name)
 	return nil
 }

@@ -15,6 +15,6 @@ func HashPassword(password string) (string, error) {
 }
 
 func VerifyPassword(hashedPassword, providedPassword string) error {
-	slog.Info("verify the password")
+	slog.Debug("verify the password")
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(providedPassword))
 }

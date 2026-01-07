@@ -1,7 +1,7 @@
 package components
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"workflowmanager/app/components/controllers"
 	"workflowmanager/app/components/repository"
@@ -11,7 +11,7 @@ import (
 )
 
 func InitAppComponents() {
-	log.Println("Init app components")
+	slog.Info("Init app components")
 	dbInstance := db.GetDatabaseInstance()
 
 	workflowRepository := repository.NewPostgresWorkflowRepository(dbInstance)
