@@ -36,7 +36,7 @@ func GetDatabaseInstance() *sql.DB {
 func CloseDatabaseConnection() {
 	if database != nil {
 		if err := database.Close(); err != nil {
-			slog.Error("The error during closing DB's instance: %v", err)
+			slog.Error("The error during closing DB's instance:", "err", err)
 		} else {
 			database = nil
 		}

@@ -49,6 +49,6 @@ func checkIsProfileTypeDev() bool {
 	const defaultProfile string = "dev"
 	profile := flag.String("profile", defaultProfile, "application profile")
 	flag.Parse()
-	slog.Info("The profile name is: %s", *profile)
+	slog.Info("The profile name is:", "profile", *profile)
 	return defaultProfile == *profile
 }
