@@ -16,7 +16,6 @@ func NewPostgresRefreshTokenRepository(database *sql.DB) *PostgresRefreshTokenRe
 
 func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) CreateRefreshToken(refreshToken models.RefreshToken) error {
 	_, err := postgresRefreshTokenRepository.database.Exec(queries.InsertRefreshTokenQuery,
-		refreshToken.Id.String(),
 		refreshToken.UserId.String(),
 		refreshToken.Token,
 		refreshToken.ExpiredAt,
