@@ -57,7 +57,7 @@ func setConfigVariables(fileContent map[string]string) error {
 func ParseTimeConfigVariable(configTimeVariable string) time.Duration {
 	duration, err := time.ParseDuration(configTimeVariable)
 	if err != nil {
-		slog.Error("Error during parsing the time env variable: %s, getting the default value 1m", err)
+		slog.Error("Error during parsing the time env variable, getting the default value 1m", "err", err)
 		return 1 * time.Minute
 	}
 	return duration

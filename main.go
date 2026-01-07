@@ -40,7 +40,7 @@ func startServer() {
 	if errors.Is(err, http.ErrServerClosed) {
 		slog.Error("Server is closed")
 	} else if err != nil {
-		slog.Error("Error during starting the server: %s", err)
+		slog.Error("Error during starting the server:", "err", err)
 		os.Exit(1)
 	}
 }

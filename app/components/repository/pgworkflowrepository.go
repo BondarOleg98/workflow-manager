@@ -82,15 +82,15 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workf
 	err := database.QueryRow(queries.InsertWorkflowQuery,
 		workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State).Scan(&workflow.WorkflowId)
 	if err != nil {
-		slog.Error("The error during saving the workflow into DB: %s", err)
+		slog.Error("The error during saving the workflow into DB:", "err", err)
 		return err
 	}
 	for _, task := range workflow.Tasks {
 		_, err = database.Exec(queries.InsertTaskQuery,
 			workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
 		if err != nil {
-			slog.Error("The error during saving the task into DB: %s under workflowId - %s",
-				err, workflow.WorkflowId.String())
+			slog.Error("The error during saving the task into DB under workflow",
+				"err", err, "workflowId", workflow.WorkflowId.String())
 			return err
 		}
 	}
