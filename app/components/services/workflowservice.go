@@ -28,7 +28,7 @@ func (workflowService *WorkflowService) GetWorkflowsByPagination(cursor string, 
 func (workflowService *WorkflowService) GetWorkflowById(workflowId string) (workflow models.Workflow, err error) {
 	workflow, err = workflowService.workflowRepository.GetWorkflowById(workflowId)
 	if err == nil {
-		slog.Info("Workflow by id - %s was retrieved", workflowId)
+		slog.Info("Workflow was retrieved", "id", workflowId)
 	}
 	return
 }
@@ -56,6 +56,6 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 	if err != nil {
 		return err
 	}
-	slog.Info("The workflow with name: %s was created", workflow.Name)
+	slog.Info("The workflow was created with", "name", workflow.Name)
 	return nil
 }

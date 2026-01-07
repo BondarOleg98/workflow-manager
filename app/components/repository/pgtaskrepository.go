@@ -42,7 +42,7 @@ func (postgresTaskRepository *PostgresTaskRepository) GetTasksByPagination(curso
 			Query(queries.GetTasksByPaginationWithoutCursorQuery, pageSize)
 	}
 	if err != nil {
-		slog.Error("The error during getting tasks from DB: %s", err)
+		slog.Error("The error during getting tasks from DB:", "err", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -57,7 +57,7 @@ func (postgresTaskRepository *PostgresTaskRepository) GetTasksByPagination(curso
 func (postgresTaskRepository *PostgresTaskRepository) GetTaskById(workflowId string) (models.Task, error) {
 	row, err := postgresTaskRepository.database.Query(queries.GetTaskByIdQuery, workflowId)
 	if err != nil {
-		slog.Info("The error during getting task by id %s from DB: %s", workflowId, err)
+		slog.Info("The error during getting task by workflowId from DB", "workflowId", workflowId, "err", err)
 		return models.Task{}, err
 	}
 	defer func(row *sql.Rows) {
@@ -68,8 +68,8 @@ func (postgresTaskRepository *PostgresTaskRepository) GetTaskById(workflowId str
 	}(row)
 	isSqlResultEmpty := row.Next()
 	if !isSqlResultEmpty {
-		slog.Error("The error during getting task by id %s from DB: %s",
-			workflowId, sql.ErrNoRows)
+		slog.Error("The error during getting task by id from DB:",
+			"workflowId", workflowId, "err", sql.ErrNoRows)
 		return models.Task{}, sql.ErrNoRows
 	}
 	return mapper.EntityMapped(models.Task{}, row)
@@ -78,7 +78,8 @@ func (postgresTaskRepository *PostgresTaskRepository) GetTaskById(workflowId str
 func (postgresTaskRepository *PostgresTaskRepository) GetTasksByWorkflowId(workflowId string) ([]models.Task, error) {
 	rows, err := postgresTaskRepository.database.Query(queries.GetTasksByWorkflowIdQuery, workflowId)
 	if err != nil {
-		slog.Error("The error during getting tasks by workflowId %s from DB: %s", workflowId, err)
+		slog.Error("The error during getting tasks by workflowId from DB:",
+			"workflowId", workflowId, "err", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {

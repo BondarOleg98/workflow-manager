@@ -37,7 +37,7 @@ func (taskService *TaskService) GetTasksByPagination(cursor string, pageSize int
 func (taskService *TaskService) GetTaskById(taskId string) (task models.Task, err error) {
 	task, err = taskService.taskRepository.GetTaskById(taskId)
 	if err == nil {
-		slog.Info("Task by id - %s was retrieved", taskId)
+		slog.Info("Task was retrieved", "id", taskId)
 	}
 	return
 }

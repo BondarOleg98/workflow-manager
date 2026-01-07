@@ -31,7 +31,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByPagi
 	}
 
 	if err != nil {
-		slog.Error("The error during getting all workflows from DB: %s", err)
+		slog.Error("The error during getting all workflows from DB:", "err", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -47,7 +47,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(wo
 	database := postgresWorkflowRepository.database
 	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
 	if err != nil {
-		slog.Error("The error during getting workflow by id %s from DB: %s", workflowId, err)
+		slog.Error("The error during getting workflow by id from DB:", "workflowId", workflowId, "err", err)
 		return models.Workflow{}, err
 	}
 	defer func(row *sql.Rows) {
@@ -58,8 +58,8 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(wo
 	}(row)
 	isSqlResultEmpty := row.Next()
 	if !isSqlResultEmpty {
-		slog.Error("The error during getting workflow by id %s from DB: %s",
-			workflowId, sql.ErrNoRows)
+		slog.Error("The error during getting workflow by id from DB:",
+			"workflowId", workflowId, "err", sql.ErrNoRows)
 		return models.Workflow{}, sql.ErrNoRows
 	}
 	return mapper.EntityMapped(models.Workflow{}, row)
