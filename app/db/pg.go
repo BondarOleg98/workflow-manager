@@ -2,7 +2,7 @@ package db
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 )
 
@@ -17,7 +17,7 @@ func CreatePgPool() Pool {
 	if postgresAuthMethod != "" {
 		secure = postgresAuthMethod
 	}
-	log.Printf("The DB ssl is: %s", secure)
+	slog.Info("The DB ssl is:", "secure", secure)
 
 	return Pool{
 		DriverName: "postgres",

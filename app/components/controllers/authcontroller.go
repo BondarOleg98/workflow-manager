@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
@@ -23,7 +23,7 @@ func NewAuthController(authService *services.AuthService) AuthController {
 }
 
 func (authController AuthController) AddAuthHandlers() {
-	log.Println("Add the auth controller")
+	slog.Debug("Add the auth controller")
 	baseAuthRoute := "/api/auth"
 	http.HandleFunc(fmt.Sprintf("POST %s/register", baseAuthRoute), authController.registerUser)
 	http.HandleFunc(fmt.Sprintf("POST %s/login", baseAuthRoute), authController.loginUser)

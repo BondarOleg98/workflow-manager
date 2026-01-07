@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	_ "github.com/lib/pq"
 	"log"
+	"log/slog"
 	"sync"
 )
 
@@ -21,21 +22,21 @@ func InitDatabaseInstance(pool Pool) *sql.DB {
 				if err != nil {
 					log.Fatalf("The error during initialization DB's instance: %v", err)
 				}
-				log.Println("The DB's instance was initialized")
+				slog.Info("The DB's instance was initialized")
 			})
 	}
 	return database
 }
 
 func GetDatabaseInstance() *sql.DB {
-	log.Println("Getting the db instance")
+	slog.Info("Getting the db instance")
 	return database
 }
 
 func CloseDatabaseConnection() {
 	if database != nil {
 		if err := database.Close(); err != nil {
-			log.Printf("The error during closing DB's instance: %v", err)
+			slog.Error("The error during closing DB's instance:", "err", err)
 		} else {
 			database = nil
 		}

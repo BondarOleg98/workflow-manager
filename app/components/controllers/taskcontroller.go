@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"workflowmanager/app/components/security"
@@ -24,7 +24,7 @@ func NewTaskController(
 }
 
 func (taskController *TaskController) AddTaskHandlers() {
-	log.Println("Add the task controller")
+	slog.Debug("Add the task controller")
 	baseWorkflowRoute := "/api/v1/tasks"
 	http.Handle(fmt.Sprintf("GET %s", baseWorkflowRoute),
 		taskController.preAuthorize.SecurityFilterChain(http.HandlerFunc(taskController.getTaskByPagination)))

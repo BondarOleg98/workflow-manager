@@ -34,7 +34,7 @@ func NewAuthService(userRepository repository.UserRepository,
 func (authService *AuthService) RegisterUsingCredentials(registerRequest requestmodels.RegisterRequest) (*models.User, error) {
 	retrievedUser, err := authService.userRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
-		slog.Info("retrieved the user by", "email", retrievedUser.Email)
+		slog.Debug("retrieved the user by", "email", retrievedUser.Email)
 		return nil, models.ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
@@ -62,7 +62,7 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 	if err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
-	slog.Info("retrieved the user by", "email", retrievedUser.Email)
+	slog.Debug("retrieved the user by", "email", retrievedUser.Email)
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
@@ -87,7 +87,7 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 }
 
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
-	slog.Info("generating the access token")
+	slog.Debug("generating the access token")
 	expirationTime := time.Now().Add(authService.accessTokenTTL)
 	claims := jwt.MapClaims{
 		"sub":      user.Id.String(),
@@ -139,7 +139,7 @@ func (authService *AuthService) RefreshAccessToken(refreshToken string) (string,
 	if err != nil {
 		return "", err
 	}
-	slog.Info("retrieved the user by", "id", retrievedUser.Id)
+	slog.Debug("retrieved the user by", "id", retrievedUser.Id)
 	err = authService.refreshTokenRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
 	if err != nil {
 		return "", err

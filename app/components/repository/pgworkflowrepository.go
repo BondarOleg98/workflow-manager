@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"log"
+	"log/slog"
 	"workflowmanager/app/components/repository/mapper"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
@@ -30,7 +31,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByPagi
 	}
 
 	if err != nil {
-		log.Printf("The error during getting all workflows from DB: %s", err)
+		slog.Error("The error during getting all workflows from DB:", "err", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
@@ -46,7 +47,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(wo
 	database := postgresWorkflowRepository.database
 	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
 	if err != nil {
-		log.Printf("The error during getting workflow by id %s from DB: %s", workflowId, err)
+		slog.Error("The error during getting workflow by id from DB:", "workflowId", workflowId, "err", err)
 		return models.Workflow{}, err
 	}
 	defer func(row *sql.Rows) {
@@ -57,8 +58,8 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(wo
 	}(row)
 	isSqlResultEmpty := row.Next()
 	if !isSqlResultEmpty {
-		log.Printf("The error during getting workflow by id %s from DB: %s",
-			workflowId, sql.ErrNoRows)
+		slog.Error("The error during getting workflow by id from DB:",
+			"workflowId", workflowId, "err", sql.ErrNoRows)
 		return models.Workflow{}, sql.ErrNoRows
 	}
 	return mapper.EntityMapped(models.Workflow{}, row)
@@ -68,7 +69,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) RemoveWorkflowById
 	database := postgresWorkflowRepository.database
 	resultDeletedWorkflows, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
 	if err != nil {
-		log.Printf("The error during deleting workflows by workflow id %s from DB: %s",
+		slog.Error("The error during deleting workflows by workflow id %s from DB: %s",
 			workflowId, err)
 		return 0, err
 	}
@@ -81,15 +82,15 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workf
 	err := database.QueryRow(queries.InsertWorkflowQuery,
 		workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State).Scan(&workflow.WorkflowId)
 	if err != nil {
-		log.Printf("The error during saving the workflow into DB: %s", err)
+		slog.Error("The error during saving the workflow into DB:", "err", err)
 		return err
 	}
 	for _, task := range workflow.Tasks {
 		_, err = database.Exec(queries.InsertTaskQuery,
 			workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
 		if err != nil {
-			log.Printf("The error during saving the task into DB: %s under workflowId - %s",
-				err, workflow.WorkflowId.String())
+			slog.Error("The error during saving the task into DB under workflow",
+				"err", err, "workflowId", workflow.WorkflowId.String())
 			return err
 		}
 	}

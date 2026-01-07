@@ -4,7 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"workflowmanager/app/components"
@@ -34,13 +34,13 @@ func startDatabaseInstance() {
 func startServer() {
 	var err error
 	address := fmt.Sprintf(":%s", os.Getenv("SERVICE_PORT"))
-	log.Printf("The app has started on the address %s", address)
+	slog.Info("The app has started on the", "address", address)
 	err = http.ListenAndServe(address, nil)
 
 	if errors.Is(err, http.ErrServerClosed) {
-		log.Printf("Server is closed")
+		slog.Error("Server is closed")
 	} else if err != nil {
-		log.Printf("Error during starting the server: %s", err)
+		slog.Error("Error during starting the server:", "err", err)
 		os.Exit(1)
 	}
 }
@@ -49,6 +49,6 @@ func checkIsProfileTypeDev() bool {
 	const defaultProfile string = "dev"
 	profile := flag.String("profile", defaultProfile, "application profile")
 	flag.Parse()
-	log.Printf("The profile name is: %s", *profile)
+	slog.Info("The profile name is:", "profile", *profile)
 	return defaultProfile == *profile
 }
