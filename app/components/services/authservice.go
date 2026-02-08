@@ -70,20 +70,29 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 	if err != nil {
 		return "", "", err
 	}
+	refreshToken, err := authService.refreshTokenRepository.GetRefreshTokenByUserId(retrievedUser.Id.String())
+	if err != nil || refreshToken.Revoked {
+		refreshToken = &models.RefreshToken{}
+		refreshToken.Token, err = authService.generateRefreshToken(retrievedUser)
+		if err != nil {
+			return "", "", err
+		}
+	}
+	return accessToken, refreshToken.Token, nil
+}
+
+func (authService *AuthService) generateRefreshToken(user *models.User) (string, error) {
 	refreshTokenId, _ := uuid.NewV7()
 	expiresAt := time.Now().Add(authService.refreshTokenTTL)
 	refreshToken := models.RefreshToken{
-		UserId:    retrievedUser.Id,
+		UserId:    user.Id,
 		Token:     refreshTokenId.String(),
 		ExpiredAt: expiresAt,
 		CreatedAt: time.Now(),
 		Revoked:   false,
 	}
-	err = authService.refreshTokenRepository.CreateRefreshToken(refreshToken)
-	if err != nil {
-		return "", "", err
-	}
-	return accessToken, refreshToken.Token, nil
+	err := authService.refreshTokenRepository.CreateRefreshToken(refreshToken)
+	return refreshToken.Token, err
 }
 
 func (authService *AuthService) generateAccessToken(user *models.User) (string, error) {
@@ -125,7 +134,7 @@ func (authService *AuthService) ValidateToken(token string) (jwt.MapClaims, erro
 }
 
 func (authService *AuthService) RefreshAccessToken(refreshToken string) (string, error) {
-	retrievedRefreshToken, err := authService.refreshTokenRepository.GetRefreshToken(refreshToken)
+	retrievedRefreshToken, err := authService.refreshTokenRepository.GetRefreshTokenByValue(refreshToken)
 	if err != nil {
 		return "", models.ErrInvalidToken
 	}

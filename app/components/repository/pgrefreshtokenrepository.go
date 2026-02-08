@@ -27,9 +27,22 @@ func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) CreateRefr
 	return nil
 }
 
-func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {
+func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) GetRefreshTokenByValue(token string) (*models.RefreshToken, error) {
 	var retrievedToken models.RefreshToken
-	err := postgresRefreshTokenRepository.database.QueryRow(queries.GetRefreshTokenQuery, token).Scan(
+	err := postgresRefreshTokenRepository.database.QueryRow(queries.GetRefreshTokenByValueQuery, token).Scan(
+		&retrievedToken.Id, &retrievedToken.UserId,
+		&retrievedToken.Token, &retrievedToken.ExpiredAt,
+		&retrievedToken.CreatedAt, &retrievedToken.Revoked,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &retrievedToken, nil
+}
+
+func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) GetRefreshTokenByUserId(userId string) (*models.RefreshToken, error) {
+	var retrievedToken models.RefreshToken
+	err := postgresRefreshTokenRepository.database.QueryRow(queries.GetRefreshTokenByUserIdQuery, userId).Scan(
 		&retrievedToken.Id, &retrievedToken.UserId,
 		&retrievedToken.Token, &retrievedToken.ExpiredAt,
 		&retrievedToken.CreatedAt, &retrievedToken.Revoked,
