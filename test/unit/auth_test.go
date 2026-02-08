@@ -92,7 +92,7 @@ func TestAuthServiceRefreshAccessToken(test *testing.T) {
 	if err != nil {
 		test.Errorf("the issue during login user")
 	}
-	token, err := refreshTokenRepository.GetRefreshToken(refreshToken)
+	token, err := refreshTokenRepository.GetRefreshTokenByValue(refreshToken)
 	if err != nil {
 		test.Errorf("the issue during getting the refresh token")
 	}
@@ -103,7 +103,7 @@ func TestAuthServiceRefreshAccessToken(test *testing.T) {
 	if err != nil {
 		test.Errorf("the issue during refreshing token")
 	}
-	token, err = refreshTokenRepository.GetRefreshToken(refreshToken)
+	token, err = refreshTokenRepository.GetRefreshTokenByValue(refreshToken)
 	if err != nil {
 		test.Errorf("the issue during getting the refresh token")
 	}
