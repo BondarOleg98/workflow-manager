@@ -6,6 +6,7 @@ import (
 
 type RefreshTokenRepository interface {
 	CreateRefreshToken(token models.RefreshToken) error
-	GetRefreshToken(token string) (*models.RefreshToken, error)
+	GetRefreshTokenByValue(token string) (*models.RefreshToken, error)
+	GetRefreshTokenByUserId(userId string) (*models.RefreshToken, error)
 	RevokeRefreshToken(refreshToken string) error
 }

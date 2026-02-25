@@ -18,13 +18,22 @@ func (mockRefreshTokenRepository *MockRefreshTokenRepository) CreateRefreshToken
 	return nil
 }
 
-func (mockRefreshTokenRepository *MockRefreshTokenRepository) GetRefreshToken(token string) (*models.RefreshToken, error) {
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) GetRefreshTokenByValue(token string) (*models.RefreshToken, error) {
 	for _, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
 		if retrievedRefreshToken.Token == token {
 			return &retrievedRefreshToken, nil
 		}
 	}
 	return nil, fmt.Errorf("the refresh token with value: %s haven't found", token)
+}
+
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) GetRefreshTokenByUserId(userId string) (*models.RefreshToken, error) {
+	for _, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
+		if retrievedRefreshToken.Token == userId {
+			return &retrievedRefreshToken, nil
+		}
+	}
+	return nil, fmt.Errorf("the refresh token with userId: %s haven't found", userId)
 }
 
 func (mockRefreshTokenRepository *MockRefreshTokenRepository) RevokeRefreshToken(refreshToken string) error {
