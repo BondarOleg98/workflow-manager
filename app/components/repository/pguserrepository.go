@@ -29,7 +29,7 @@ func (postgresUserRepository *PostgresUserRepository) GetUserByEmail(email strin
 	var lastLogin sql.NullTime
 	err := postgresUserRepository.database.QueryRow(queries.GetUserByEmailQuery, email).
 		Scan(
-			&user.Id, &user.Username, &user.Email, &user.Password, &user.CreatedAt, &user.LastLogin,
+			&user.Id, &user.Email, &user.Username, &user.Password, &user.CreatedAt, &user.LastLogin,
 		)
 	if err != nil {
 		return nil, err
