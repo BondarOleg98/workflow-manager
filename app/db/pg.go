@@ -17,7 +17,7 @@ func CreatePgPool() Pool {
 	if postgresAuthMethod != "" {
 		secure = postgresAuthMethod
 	}
-	slog.Info("The DB ssl is:", "secure", secure)
+	slog.Info("The DB ssl", "secure", secure)
 
 	return Pool{
 		DriverName: "postgres",
