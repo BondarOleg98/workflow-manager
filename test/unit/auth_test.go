@@ -22,7 +22,7 @@ var loginRequest = requestmodels.LoginRequest{
 
 func prepareTestConfigs() {
 	const configFilePath string = "../../app/resources/dev_env.yaml"
-	_ = util.LoadConfigs(configFilePath)
+	util.LoadConfigs(configFilePath)
 }
 
 func TestAuthServiceRegisterUsingCredentials(test *testing.T) {

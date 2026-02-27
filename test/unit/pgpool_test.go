@@ -8,10 +8,7 @@ import (
 
 func TestCreateNonSslPgPool(test *testing.T) {
 	const configFilePath string = "../../app/resources/dev_env.yaml"
-	err := util.LoadConfigs(configFilePath)
-	if err != nil {
-		test.FailNow()
-	}
+	util.LoadConfigs(configFilePath)
 	actualPgPool := db.CreatePgPool()
 	expectedPgPool := db.Pool{
 		DriverName:    "postgres",
