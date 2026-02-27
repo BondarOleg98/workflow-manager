@@ -8,22 +8,19 @@ import (
 	"time"
 )
 
-func LoadConfigs(filePath string) error {
+func LoadConfigs(filePath string) {
 	configFile, err := readConfigFile(filePath)
 	if err != nil {
 		log.Fatalf("Error during reading file: %s", err)
-		return err
 	}
 	fileContent, err := parseConfigFile(configFile)
 	if err != nil {
-		return err
+		log.Fatalf("Error during parsing values from the config file: %s", err)
 	}
 	err = setConfigVariables(fileContent)
 	if err != nil {
-		log.Fatalf("Error during settign values from the config file: %s", err)
-		return err
+		log.Fatalf("Error during setting values from the config file: %s", err)
 	}
-	return nil
 }
 
 func readConfigFile(configFilePath string) ([]byte, error) {

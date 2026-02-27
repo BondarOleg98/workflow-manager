@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -14,14 +15,7 @@ import (
 )
 
 func main() {
-	var err error
-	if checkIsProfileTypeDev() {
-		const configFilePath string = "app/resources/dev_env.yaml"
-		err = util.LoadConfigs(configFilePath)
-	}
-	if err != nil {
-		return
-	}
+	setConfigs()
 	setLogging()
 	startDatabaseInstance()
 	components.InitAppComponents()
@@ -47,12 +41,15 @@ func startServer() {
 	}
 }
 
-func checkIsProfileTypeDev() bool {
+func setConfigs() {
 	const defaultProfile string = "dev"
 	profile := flag.String("profile", defaultProfile, "application profile")
 	flag.Parse()
-	slog.Info("The app", "profile", *profile)
-	return defaultProfile == *profile
+	if defaultProfile == *profile {
+		const configFilePath string = "app/resources/dev_env.yaml"
+		util.LoadConfigs(configFilePath)
+	}
+	log.Println("The app profile:", *profile)
 }
 
 func setLogging() {
