@@ -34,7 +34,7 @@ func NewAuthService(userRepository repository.UserRepository,
 func (authService *AuthService) RegisterUsingCredentials(registerRequest requestmodels.RegisterRequest) (*models.User, error) {
 	retrievedUser, err := authService.userRepository.GetUserByEmail(registerRequest.Email)
 	if retrievedUser != nil {
-		slog.Debug("retrieved the user by", "email", retrievedUser.Email)
+		slog.Debug("retrieved the user by email", "email", retrievedUser.Email)
 		return nil, models.ErrEmailInUse
 	}
 	if !errors.Is(err, sql.ErrNoRows) {
@@ -62,7 +62,7 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 	if err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
-	slog.Debug("retrieved the user by", "email", retrievedUser.Email)
+	slog.Debug("retrieved the user by email", "email", retrievedUser.Email)
 	if err := util.VerifyPassword(retrievedUser.Password, loginRequest.Password); err != nil {
 		return "", "", models.ErrInvalidCredentials
 	}
@@ -148,7 +148,7 @@ func (authService *AuthService) RefreshAccessToken(refreshToken string) (string,
 	if err != nil {
 		return "", err
 	}
-	slog.Debug("retrieved the user by", "id", retrievedUser.Id)
+	slog.Debug("retrieved the user by id", "id", retrievedUser.Id)
 	err = authService.refreshTokenRepository.RevokeRefreshToken(retrievedRefreshToken.Token)
 	if err != nil {
 		return "", err
