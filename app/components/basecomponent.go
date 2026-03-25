@@ -25,7 +25,7 @@ func InitAppComponents() {
 
 	preAuthorize := security.NewPreAuthorize(authService)
 	authController := controllers.NewAuthController(authService)
-	workflowController := controllers.NewWorkflowController(workflowService, preAuthorize)
+	workflowController := controllers.NewWorkflowController(workflowService, preAuthorize, GetValidatorInstance())
 	taskController := controllers.NewTaskController(taskService, preAuthorize)
 
 	authController.AddAuthHandlers()

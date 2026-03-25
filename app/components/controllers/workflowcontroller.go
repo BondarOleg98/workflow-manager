@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -15,14 +16,17 @@ import (
 type WorkflowController struct {
 	workflowService *services.WorkflowService
 	preAuthorize    *security.PreAuthorize
+	validate        *validator.Validate
 }
 
 func NewWorkflowController(
 	workflowService *services.WorkflowService,
-	preAuthorize *security.PreAuthorize) *WorkflowController {
+	preAuthorize *security.PreAuthorize,
+	validate *validator.Validate) *WorkflowController {
 	return &WorkflowController{
 		workflowService: workflowService,
 		preAuthorize:    preAuthorize,
+		validate:        validate,
 	}
 }
 
@@ -106,6 +110,7 @@ func (workflowController *WorkflowController) getWorkflowsByFiltration(
 	workflowController.preAuthorize.IsAuthorised(responseWriter, request)
 	var filtration filtrartion.Filtration
 	err := json.NewDecoder(request.Body).Decode(&filtration)
+	err = workflowController.validate.Struct(filtration)
 	if err != nil {
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return

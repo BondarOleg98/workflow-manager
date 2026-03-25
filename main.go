@@ -18,6 +18,7 @@ func main() {
 	setConfigs()
 	setLogging()
 	startDatabaseInstance()
+	components.InitValidator()
 	components.InitAppComponents()
 	startServer()
 	defer db.CloseDatabaseConnection()
