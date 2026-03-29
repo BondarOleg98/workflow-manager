@@ -10,7 +10,7 @@ import (
 	"workflowmanager/app/components/security"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
-	"workflowmanager/app/models/filtrartion"
+	"workflowmanager/app/models/filtration"
 )
 
 type WorkflowController struct {
@@ -108,14 +108,14 @@ func (workflowController *WorkflowController) saveWorkflow(responseWriter http.R
 func (workflowController *WorkflowController) getWorkflowsByFiltration(
 	responseWriter http.ResponseWriter, request *http.Request) {
 	workflowController.preAuthorize.IsAuthorised(responseWriter, request)
-	var filtration filtrartion.Filtration
-	err := json.NewDecoder(request.Body).Decode(&filtration)
-	err = workflowController.validate.Struct(filtration)
+	var filtrationBody filtration.Filtration
+	err := json.NewDecoder(request.Body).Decode(&filtrationBody)
+	err = workflowController.validate.Struct(filtrationBody)
 	if err != nil {
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	workflows, err := workflowController.workflowService.GetWorkflowsByFiltration(filtration)
+	workflows, err := workflowController.workflowService.GetWorkflowsByFiltration(filtrationBody)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	} else {

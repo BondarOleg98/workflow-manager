@@ -5,6 +5,7 @@ import (
 	"time"
 	"workflowmanager/app/components/repository"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/filtration"
 )
 
 type WorkflowService struct {
@@ -58,4 +59,12 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 	}
 	slog.Info("The workflow was created with", "name", workflow.Name)
 	return nil
+}
+
+func (workflowService *WorkflowService) GetWorkflowsByFiltration(filtration filtration.Filtration) (workflows []models.Workflow, err error) {
+	workflows, err = workflowService.workflowRepository.GetWorkflowsByFiltration(filtration)
+	if err == nil {
+		slog.Info("Workflows after filtering were retrieved")
+	}
+	return
 }
