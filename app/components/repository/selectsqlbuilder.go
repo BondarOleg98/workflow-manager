@@ -37,10 +37,6 @@ func (selectQueryBuilder *selectSqlBuilder) setSorterOperator(sorterOperator str
 	selectQueryBuilder.sorterOperator = sorterOperator
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setSorterOrder(sorterOperator string) {
-	selectQueryBuilder.sorterOperator = sorterOperator
-}
-
 func (selectQueryBuilder *selectSqlBuilder) setSorterFieldName(sorterFieldName string) {
 	selectQueryBuilder.sorterFieldName = sorterFieldName
 }

@@ -12,10 +12,6 @@ func newSqlDirector(sqlBuilder sqlBuilder) *sqlDirector {
 	}
 }
 
-func (sqlDirector *sqlDirector) setBuilder(sqlBuilder sqlBuilder) {
-	sqlDirector.sqlBuilder = sqlBuilder
-}
-
 func (sqlDirector *sqlDirector) buildSqlRequest(tableName string,
 	filtration filtration.Filtration) string {
 	sqlDirector.sqlBuilder.setTableName(tableName)

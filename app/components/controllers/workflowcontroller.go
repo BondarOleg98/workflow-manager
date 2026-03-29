@@ -110,6 +110,10 @@ func (workflowController *WorkflowController) getWorkflowsByFiltration(
 	workflowController.preAuthorize.IsAuthorised(responseWriter, request)
 	var filtrationBody filtration.Filtration
 	err := json.NewDecoder(request.Body).Decode(&filtrationBody)
+	if err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
+		return
+	}
 	err = workflowController.validate.Struct(filtrationBody)
 	if err != nil {
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
