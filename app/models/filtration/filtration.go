@@ -1,4 +1,4 @@
-package filtrartion
+package filtration
 
 type Filtration struct {
 	Filter Filter `json:"filter"`

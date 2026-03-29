@@ -1,4 +1,4 @@
-package filtrartion
+package filtration
 
 type Filter struct {
 	Operator Operator `json:"operator" validate:"oneof=IN EQ LIKE"`
