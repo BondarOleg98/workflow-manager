@@ -41,13 +41,22 @@ func (selectQueryBuilder *selectSqlBuilder) setSorterFieldName(sorterFieldName s
 	selectQueryBuilder.sorterFieldName = sorterFieldName
 }
 
-// TODO implement if we need to get data using EQ or IN. Also need to implement more logic for LIKE operator
 func (selectQueryBuilder *selectSqlBuilder) getSqlRequest() string {
-	return fmt.Sprintf("SELECT * FROM %s WHERE %s %s '%s' ORDER BY %s %s",
+	var prebuiltFilterOperatorWithValue string
+	switch selectQueryBuilder.filterOperator {
+	case "IN":
+		prebuiltFilterOperatorWithValue = fmt.Sprintf("%s (%s)",
+			selectQueryBuilder.filterOperator, selectQueryBuilder.filterValue)
+	case "EQ":
+		prebuiltFilterOperatorWithValue = fmt.Sprintf("='%s'", selectQueryBuilder.filterValue)
+	default:
+		prebuiltFilterOperatorWithValue = fmt.Sprintf("%s '%s'", selectQueryBuilder.filterOperator,
+			selectQueryBuilder.filterValue)
+	}
+	return fmt.Sprintf("SELECT * FROM %s WHERE %s::TEXT %s ORDER BY %s %s",
 		selectQueryBuilder.tableName,
 		selectQueryBuilder.filterFieldName,
-		selectQueryBuilder.filterOperator,
-		selectQueryBuilder.filterValue,
+		prebuiltFilterOperatorWithValue,
 		selectQueryBuilder.sorterFieldName,
 		selectQueryBuilder.sorterOperator,
 	)

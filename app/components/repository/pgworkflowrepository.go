@@ -108,7 +108,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByFilt
 	rows, err = postgresWorkflowRepository.database.Query(sqlQuery)
 
 	if err != nil {
-		slog.Error("The error during getting workflows by filter from DB:", "err", err)
+		slog.Error("The error during getting workflows by filter from DB", "err", err)
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
