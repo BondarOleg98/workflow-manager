@@ -7,6 +7,7 @@ import (
 	"workflowmanager/app/components/repository/mapper"
 	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/filtration"
 )
 
 type PostgresWorkflowRepository struct {
@@ -44,8 +45,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByPagi
 }
 
 func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(workflowId string) (models.Workflow, error) {
-	database := postgresWorkflowRepository.database
-	row, err := database.Query(queries.GetWorkflowByIdQuery, workflowId)
+	row, err := postgresWorkflowRepository.database.Query(queries.GetWorkflowByIdQuery, workflowId)
 	if err != nil {
 		slog.Error("The error during getting workflow by id from DB:", "workflowId", workflowId, "err", err)
 		return models.Workflow{}, err
@@ -66,8 +66,7 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowById(wo
 }
 
 func (postgresWorkflowRepository *PostgresWorkflowRepository) RemoveWorkflowById(workflowId string) (int64, error) {
-	database := postgresWorkflowRepository.database
-	resultDeletedWorkflows, err := database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
+	resultDeletedWorkflows, err := postgresWorkflowRepository.database.Exec(queries.RemoveWorkflowByIdQuery, workflowId)
 	if err != nil {
 		slog.Error("The error during deleting workflows by workflow id %s from DB: %s",
 			workflowId, err)
@@ -95,4 +94,28 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workf
 		}
 	}
 	return nil
+}
+
+func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByFiltration(
+	filtration filtration.Filtration) ([]models.Workflow, error) {
+	var rows *sql.Rows
+	var err error
+
+	selectSqlBuilder := newSelectSqlBuilder()
+	sqlDirector := newSqlDirector(selectSqlBuilder)
+	sqlQuery := sqlDirector.buildSqlRequest("workflows", filtration)
+
+	rows, err = postgresWorkflowRepository.database.Query(sqlQuery)
+
+	if err != nil {
+		slog.Error("The error during getting workflows by filter from DB", "err", err)
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Fatal("The error during closing the reader of the database")
+		}
+	}(rows)
+	return mapper.ListEntitiesMapped([]models.Workflow{}, rows)
 }

@@ -3,25 +3,30 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"workflowmanager/app/components/security"
 	"workflowmanager/app/components/services"
 	"workflowmanager/app/models"
+	"workflowmanager/app/models/filtration"
 )
 
 type WorkflowController struct {
 	workflowService *services.WorkflowService
 	preAuthorize    *security.PreAuthorize
+	validate        *validator.Validate
 }
 
 func NewWorkflowController(
 	workflowService *services.WorkflowService,
-	preAuthorize *security.PreAuthorize) *WorkflowController {
+	preAuthorize *security.PreAuthorize,
+	validate *validator.Validate) *WorkflowController {
 	return &WorkflowController{
 		workflowService: workflowService,
 		preAuthorize:    preAuthorize,
+		validate:        validate,
 	}
 }
 
@@ -36,6 +41,8 @@ func (workflowController *WorkflowController) AddWorkflowHandlers() {
 		workflowController.preAuthorize.SecurityFilterChain(http.HandlerFunc(workflowController.removeWorkflowById)))
 	http.Handle(fmt.Sprintf("POST %s/save", baseWorkflowRoute),
 		workflowController.preAuthorize.SecurityFilterChain(http.HandlerFunc(workflowController.saveWorkflow)))
+	http.Handle(fmt.Sprintf("POST %s", baseWorkflowRoute),
+		workflowController.preAuthorize.SecurityFilterChain(http.HandlerFunc(workflowController.getWorkflowsByFiltration)))
 }
 
 func (workflowController *WorkflowController) getWorkflowsByPagination(
@@ -95,5 +102,28 @@ func (workflowController *WorkflowController) saveWorkflow(responseWriter http.R
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	} else {
 		responseWriter.WriteHeader(http.StatusCreated)
+	}
+}
+
+func (workflowController *WorkflowController) getWorkflowsByFiltration(
+	responseWriter http.ResponseWriter, request *http.Request) {
+	workflowController.preAuthorize.IsAuthorised(responseWriter, request)
+	var filtrationBody filtration.Filtration
+	err := json.NewDecoder(request.Body).Decode(&filtrationBody)
+	if err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
+		return
+	}
+	err = workflowController.validate.Struct(filtrationBody)
+	if err != nil {
+		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
+		return
+	}
+	workflows, err := workflowController.workflowService.GetWorkflowsByFiltration(filtrationBody)
+	if err != nil {
+		responseWriter.WriteHeader(http.StatusInternalServerError)
+	} else {
+		responseWriter.WriteHeader(http.StatusOK)
+		buildResponseBody(workflows, responseWriter)
 	}
 }
