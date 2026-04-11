@@ -51,7 +51,7 @@ func (mockRefreshTokenRepository *MockRefreshTokenRepository) RemoveRefreshToken
 	tmpRefreshTokens := mockRefreshTokenRepository.refreshTokens
 	for indexRefreshToken, retrievedRefreshToken := range tmpRefreshTokens {
 		if retrievedRefreshToken.Token == refreshToken {
-			slices.Delete(mockRefreshTokenRepository.refreshTokens, indexRefreshToken, indexRefreshToken)
+			mockRefreshTokenRepository.refreshTokens = slices.Delete(mockRefreshTokenRepository.refreshTokens, indexRefreshToken, indexRefreshToken)
 			return nil
 		}
 	}

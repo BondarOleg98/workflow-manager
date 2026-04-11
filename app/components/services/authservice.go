@@ -82,11 +82,10 @@ func (authService *AuthService) checkIsRefreshTokenExpired(refreshToken *models.
 }
 
 func (authService *AuthService) fillRefreshToken(user *models.User) *models.RefreshToken {
-	refreshToken := &models.RefreshToken{}
 	refreshTokenId, _ := uuid.NewV7()
 	createdAt := time.Now().UTC()
 	expiredAt := createdAt.Add(authService.refreshTokenTTL)
-	refreshToken = &models.RefreshToken{
+	refreshToken := &models.RefreshToken{
 		UserId:    user.Id,
 		Token:     refreshTokenId.String(),
 		ExpiredAt: expiredAt,
