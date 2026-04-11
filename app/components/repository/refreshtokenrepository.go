@@ -9,4 +9,5 @@ type RefreshTokenRepository interface {
 	GetRefreshTokenByValue(token string) (*models.RefreshToken, error)
 	GetRefreshTokenByUserId(userId string) (*models.RefreshToken, error)
 	RevokeRefreshToken(refreshToken string) error
+	RemoveRefreshToken(refreshToken string) error
 }

@@ -70,28 +70,43 @@ func (authService *AuthService) Login(loginRequest requestmodels.LoginRequest) (
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err := authService.refreshTokenRepository.GetRefreshTokenByUserId(retrievedUser.Id.String())
-	if err != nil || refreshToken.Revoked {
-		refreshToken = &models.RefreshToken{}
-		refreshToken.Token, err = authService.generateRefreshToken(retrievedUser)
-		if err != nil {
-			return "", "", err
-		}
+	refreshToken, err := authService.generateRefreshToken(retrievedUser)
+	if err != nil {
+		return "", "", err
 	}
-	return accessToken, refreshToken.Token, nil
+	return accessToken, refreshToken, nil
+}
+
+func (authService *AuthService) checkIsRefreshTokenExpired(refreshToken *models.RefreshToken) bool {
+	return time.Now().UTC().After(refreshToken.ExpiredAt)
+}
+
+func (authService *AuthService) fillRefreshToken(user *models.User) *models.RefreshToken {
+	refreshTokenId, _ := uuid.NewV7()
+	createdAt := time.Now().UTC()
+	expiredAt := createdAt.Add(authService.refreshTokenTTL)
+	refreshToken := &models.RefreshToken{
+		UserId:    user.Id,
+		Token:     refreshTokenId.String(),
+		ExpiredAt: expiredAt,
+		CreatedAt: createdAt,
+		Revoked:   false,
+	}
+	return refreshToken
 }
 
 func (authService *AuthService) generateRefreshToken(user *models.User) (string, error) {
-	refreshTokenId, _ := uuid.NewV7()
-	expiresAt := time.Now().Add(authService.refreshTokenTTL)
-	refreshToken := models.RefreshToken{
-		UserId:    user.Id,
-		Token:     refreshTokenId.String(),
-		ExpiredAt: expiresAt,
-		CreatedAt: time.Now(),
-		Revoked:   false,
+	refreshToken, err := authService.refreshTokenRepository.GetRefreshTokenByUserId(user.Id.String())
+	if refreshToken == nil {
+		refreshToken = authService.fillRefreshToken(user)
+		err = authService.refreshTokenRepository.CreateRefreshToken(*refreshToken)
+	} else {
+		if refreshToken.Revoked || authService.checkIsRefreshTokenExpired(refreshToken) {
+			_ = authService.refreshTokenRepository.RemoveRefreshToken(refreshToken.Token)
+			refreshToken = authService.fillRefreshToken(user)
+			err = authService.refreshTokenRepository.CreateRefreshToken(*refreshToken)
+		}
 	}
-	err := authService.refreshTokenRepository.CreateRefreshToken(refreshToken)
 	return refreshToken.Token, err
 }
 

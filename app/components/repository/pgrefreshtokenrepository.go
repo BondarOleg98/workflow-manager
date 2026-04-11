@@ -57,3 +57,8 @@ func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) RevokeRefr
 	_, err := postgresRefreshTokenRepository.database.Exec(queries.RevokedRefreshTokenQuery, refreshToken)
 	return err
 }
+
+func (postgresRefreshTokenRepository *PostgresRefreshTokenRepository) RemoveRefreshToken(refreshToken string) error {
+	_, err := postgresRefreshTokenRepository.database.Exec(queries.RemoveRefreshTokenQuery, refreshToken)
+	return err
+}
