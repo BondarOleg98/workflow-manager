@@ -2,6 +2,7 @@ package unit
 
 import (
 	"fmt"
+	"slices"
 	"workflowmanager/app/models"
 )
 
@@ -40,6 +41,17 @@ func (mockRefreshTokenRepository *MockRefreshTokenRepository) RevokeRefreshToken
 	for indexRefreshToken, retrievedRefreshToken := range mockRefreshTokenRepository.refreshTokens {
 		if retrievedRefreshToken.Token == refreshToken {
 			mockRefreshTokenRepository.refreshTokens[indexRefreshToken].Revoked = true
+			return nil
+		}
+	}
+	return fmt.Errorf("the refresh token with value: %s haven't found", refreshToken)
+}
+
+func (mockRefreshTokenRepository *MockRefreshTokenRepository) RemoveRefreshToken(refreshToken string) error {
+	tmpRefreshTokens := mockRefreshTokenRepository.refreshTokens
+	for indexRefreshToken, retrievedRefreshToken := range tmpRefreshTokens {
+		if retrievedRefreshToken.Token == refreshToken {
+			slices.Delete(mockRefreshTokenRepository.refreshTokens, indexRefreshToken, indexRefreshToken)
 			return nil
 		}
 	}
