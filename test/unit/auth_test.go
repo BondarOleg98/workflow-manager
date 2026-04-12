@@ -9,6 +9,10 @@ import (
 	"workflowmanager/app/util"
 )
 
+var userRepository *MockUserRepository
+var refreshTokenRepository *MockRefreshTokenRepository
+var authService *services.AuthService
+
 var registerRequest = requestmodels.RegisterRequest{
 	Email:    "test",
 	Password: "test",
@@ -20,15 +24,16 @@ var loginRequest = requestmodels.LoginRequest{
 	Password: "test",
 }
 
-func prepareTestConfigs() {
+func preconfigureTestAuth() {
 	const configFilePath string = "../../app/resources/dev_env.yaml"
 	util.LoadConfigs(configFilePath)
+	userRepository = NewMockUserRepository()
+	refreshTokenRepository = NewMockRefreshTokenRepository()
+	authService = services.NewAuthService(userRepository, refreshTokenRepository)
 }
 
 func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
-	prepareTestConfigs()
-	userRepository := NewMockUserRepository()
-	authService := services.NewAuthService(userRepository, nil)
+	preconfigureTestAuth()
 	expectedUser := models.User{
 		Email:    registerRequest.Email,
 		Password: registerRequest.Password,
@@ -49,11 +54,8 @@ func TestAuthServiceRegisterUsingCredentials(test *testing.T) {
 	}
 }
 
-func TestAuthServiceLoginUsingCredentials(test *testing.T) {
-	prepareTestConfigs()
-	userRepository := NewMockUserRepository()
-	refreshTokenRepository := NewRefreshTokenRepository()
-	authService := services.NewAuthService(userRepository, refreshTokenRepository)
+func TestAuthServiceLogin(test *testing.T) {
+	preconfigureTestAuth()
 	_, err := authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
 		test.Errorf("the issue during register user")
@@ -80,10 +82,7 @@ func TestAuthServiceLoginUsingCredentials(test *testing.T) {
 }
 
 func TestAuthServiceRefreshAccessToken(test *testing.T) {
-	prepareTestConfigs()
-	userRepository := NewMockUserRepository()
-	refreshTokenRepository := NewRefreshTokenRepository()
-	authService := services.NewAuthService(userRepository, refreshTokenRepository)
+	preconfigureTestAuth()
 	_, err := authService.RegisterUsingCredentials(registerRequest)
 	if err != nil {
 		test.Errorf("the issue during register user")
