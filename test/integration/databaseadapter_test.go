@@ -6,7 +6,14 @@ import (
 	"workflowmanager/app/db"
 )
 
-func testCorrectDatabaseInstance(test *testing.T) {
+func TestCorrectDatabaseInstance(test *testing.T) {
+	pool := db.Pool{
+		DriverName:    "postgres",
+		ConnectionUrl: "postgres://postgres:postgres@localhost/workflow_manager?sslmode=disable",
+	}
+	db.InitDatabaseInstance(pool)
+	defer db.CloseDatabaseConnection()
+
 	databaseActualName, _ := getActualDatabaseNameThroughAdapter()
 	databaseExpectedName, _ := getExpectedDatabaseName()
 	if databaseExpectedName != databaseActualName {
