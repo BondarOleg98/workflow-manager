@@ -97,11 +97,12 @@ func (workflowController *WorkflowController) saveWorkflow(responseWriter http.R
 		http.Error(responseWriter, "the invalid request payload", http.StatusBadRequest)
 		return
 	}
-	err = workflowController.workflowService.SaveWorkflow(workflow)
+	createdWorkflow, err := workflowController.workflowService.SaveWorkflow(workflow)
 	if err != nil {
 		responseWriter.WriteHeader(http.StatusInternalServerError)
 	} else {
 		responseWriter.WriteHeader(http.StatusCreated)
+		buildResponseBody(&createdWorkflow, responseWriter)
 	}
 }
 

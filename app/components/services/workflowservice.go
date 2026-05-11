@@ -37,13 +37,13 @@ func (workflowService *WorkflowService) GetWorkflowById(workflowId string) (work
 func (workflowService *WorkflowService) RemoveWorkflowById(workflowId string) error {
 	rowsWorkflowsAffected, err := workflowService.workflowRepository.RemoveWorkflowById(workflowId)
 	if err == nil {
-		slog.Info("Workflow by id - %s was removed %d", workflowId, rowsWorkflowsAffected)
+		slog.Info("Workflow by id was removed:", "workflowId", workflowId, "affectedRows", rowsWorkflowsAffected)
 		return nil
 	}
 	return err
 }
 
-func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) error {
+func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) (*models.Workflow, error) {
 	createdAt := time.Now()
 	workflow.State = models.CREATED
 	workflow.CreatedAt = createdAt
@@ -53,12 +53,12 @@ func (workflowService *WorkflowService) SaveWorkflow(workflow models.Workflow) e
 		workflow.Tasks[indexTask].UpdatedAt = createdAt
 		workflow.Tasks[indexTask].State = models.CREATED
 	}
-	err := workflowService.workflowRepository.SaveWorkflow(workflow)
+	createdWorkflow, err := workflowService.workflowRepository.SaveWorkflow(workflow)
 	if err != nil {
-		return err
+		return createdWorkflow, err
 	}
-	slog.Info("The workflow was created with", "name", workflow.Name)
-	return nil
+	slog.Info("The workflow was created with", "name", createdWorkflow.Name)
+	return createdWorkflow, nil
 }
 
 func (workflowService *WorkflowService) GetWorkflowsByFiltration(filtration filtration.Filtration) (workflows []models.Workflow, err error) {
