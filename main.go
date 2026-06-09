@@ -17,15 +17,11 @@ import (
 func main() {
 	setConfigs()
 	setLogging()
-	startDatabaseInstance()
+	db.InitDatabaseInstance(db.CreatePgPool())
 	components.InitValidator()
 	components.InitAppComponents()
 	startServer()
 	defer db.CloseDatabaseConnection()
-}
-
-func startDatabaseInstance() {
-	db.InitDatabaseInstance(db.CreatePgPool())
 }
 
 func startServer() {
