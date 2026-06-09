@@ -109,9 +109,9 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByFilt
 	var rows *sql.Rows
 	var err error
 
-	selectSqlBuilder := newSelectSqlBuilder()
-	sqlDirector := newSqlDirector(selectSqlBuilder)
-	sqlQuery := sqlDirector.buildSqlRequest("workflows", filtration)
+	selectSqlBuilder := NewSelectSqlBuilder()
+	sqlDirector := NewSqlDirector(selectSqlBuilder)
+	sqlQuery := sqlDirector.BuildSqlRequest("workflows", filtration)
 
 	rows, err = postgresWorkflowRepository.database.Query(sqlQuery)
 
