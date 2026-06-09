@@ -7,7 +7,7 @@ import (
 )
 
 func TestCreateNonSslPgPool(test *testing.T) {
-	const configFilePath string = "../../app/resources/test_env.yaml"
+	const configFilePath string = "../resources/test_env.yaml"
 	util.LoadConfigs(configFilePath)
 	actualPgPool := db.CreatePgPool()
 	expectedPgPool := db.Pool{
