@@ -2,17 +2,17 @@ package repository
 
 import "workflowmanager/app/models/filtration"
 
-type sqlDirector struct {
+type SqlDirector struct {
 	sqlBuilder sqlBuilder
 }
 
-func newSqlDirector(sqlBuilder sqlBuilder) *sqlDirector {
-	return &sqlDirector{
+func NewSqlDirector(sqlBuilder sqlBuilder) *SqlDirector {
+	return &SqlDirector{
 		sqlBuilder: sqlBuilder,
 	}
 }
 
-func (sqlDirector *sqlDirector) buildSqlRequest(tableName string,
+func (sqlDirector *SqlDirector) BuildSqlRequest(tableName string,
 	filtration filtration.Filtration) string {
 	sqlDirector.sqlBuilder.setTableName(tableName)
 	sqlDirector.sqlBuilder.setFilterFieldName(filtration.Filter.Field)

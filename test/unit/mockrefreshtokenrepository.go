@@ -10,7 +10,7 @@ type MockRefreshTokenRepository struct {
 	refreshTokens []models.RefreshToken
 }
 
-func NewRefreshTokenRepository() *MockRefreshTokenRepository {
+func NewMockRefreshTokenRepository() *MockRefreshTokenRepository {
 	return &MockRefreshTokenRepository{}
 }
 

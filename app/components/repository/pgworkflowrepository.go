@@ -76,24 +76,32 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) RemoveWorkflowById
 	return rowsWorkflowsAffected, err
 }
 
-func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workflow models.Workflow) error {
+func (postgresWorkflowRepository *PostgresWorkflowRepository) SaveWorkflow(workflow models.Workflow) (
+	*models.Workflow, error) {
 	database := postgresWorkflowRepository.database
+	createdWorkflow := models.Workflow{}
 	err := database.QueryRow(queries.InsertWorkflowQuery,
-		workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State).Scan(&workflow.WorkflowId)
+		workflow.Name, workflow.CreatedAt, workflow.UpdatedAt, workflow.State).Scan(
+		&createdWorkflow.WorkflowId, &createdWorkflow.Name, &createdWorkflow.State,
+		&createdWorkflow.CreatedAt, &createdWorkflow.UpdatedAt)
 	if err != nil {
 		slog.Error("The error during saving the workflow into DB:", "err", err)
-		return err
+		return nil, err
 	}
 	for _, task := range workflow.Tasks {
-		_, err = database.Exec(queries.InsertTaskQuery,
-			workflow.WorkflowId.String(), task.Name, task.CreatedAt, task.UpdatedAt, workflow.State)
+		createdTask := models.Task{}
+		err = database.QueryRow(queries.InsertTaskQuery,
+			createdWorkflow.WorkflowId, task.Name, task.CreatedAt, task.UpdatedAt, workflow.State).Scan(
+			&createdTask.TaskId, &createdTask.Name, &createdTask.State, &createdTask.CreatedAt, &createdTask.UpdatedAt)
+		tasks := append(createdWorkflow.Tasks, createdTask)
+		createdWorkflow.Tasks = tasks
 		if err != nil {
 			slog.Error("The error during saving the task into DB under workflow",
-				"err", err, "workflowId", workflow.WorkflowId.String())
-			return err
+				"err", err, "workflowId", createdWorkflow.WorkflowId)
+			return nil, err
 		}
 	}
-	return nil
+	return &createdWorkflow, nil
 }
 
 func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByFiltration(
@@ -101,9 +109,9 @@ func (postgresWorkflowRepository *PostgresWorkflowRepository) GetWorkflowsByFilt
 	var rows *sql.Rows
 	var err error
 
-	selectSqlBuilder := newSelectSqlBuilder()
-	sqlDirector := newSqlDirector(selectSqlBuilder)
-	sqlQuery := sqlDirector.buildSqlRequest("workflows", filtration)
+	selectSqlBuilder := NewSelectSqlBuilder()
+	sqlDirector := NewSqlDirector(selectSqlBuilder)
+	sqlQuery := sqlDirector.BuildSqlRequest("workflows", filtration)
 
 	rows, err = postgresWorkflowRepository.database.Query(sqlQuery)
 

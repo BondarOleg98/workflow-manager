@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type selectSqlBuilder struct {
+type SelectSqlBuilder struct {
 	tableName       string
 	sorterFieldName string
 	filterFieldName string
@@ -13,35 +13,35 @@ type selectSqlBuilder struct {
 	sorterOperator  string
 }
 
-func newSelectSqlBuilder() *selectSqlBuilder {
-	return &selectSqlBuilder{}
+func NewSelectSqlBuilder() *SelectSqlBuilder {
+	return &SelectSqlBuilder{}
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setTableName(tableName string) {
+func (selectQueryBuilder *SelectSqlBuilder) setTableName(tableName string) {
 	selectQueryBuilder.tableName = tableName
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setFilterOperator(filterOperator string) {
+func (selectQueryBuilder *SelectSqlBuilder) setFilterOperator(filterOperator string) {
 	selectQueryBuilder.filterOperator = filterOperator
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setFilterFieldName(filterFieldName string) {
+func (selectQueryBuilder *SelectSqlBuilder) setFilterFieldName(filterFieldName string) {
 	selectQueryBuilder.filterFieldName = filterFieldName
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setFilterValue(filterValue string) {
+func (selectQueryBuilder *SelectSqlBuilder) setFilterValue(filterValue string) {
 	selectQueryBuilder.filterValue = filterValue
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setSorterOperator(sorterOperator string) {
+func (selectQueryBuilder *SelectSqlBuilder) setSorterOperator(sorterOperator string) {
 	selectQueryBuilder.sorterOperator = sorterOperator
 }
 
-func (selectQueryBuilder *selectSqlBuilder) setSorterFieldName(sorterFieldName string) {
+func (selectQueryBuilder *SelectSqlBuilder) setSorterFieldName(sorterFieldName string) {
 	selectQueryBuilder.sorterFieldName = sorterFieldName
 }
 
-func (selectQueryBuilder *selectSqlBuilder) getSqlRequest() string {
+func (selectQueryBuilder *SelectSqlBuilder) getSqlRequest() string {
 	var prebuiltFilterOperatorWithValue string
 	switch selectQueryBuilder.filterOperator {
 	case "IN":
@@ -49,7 +49,7 @@ func (selectQueryBuilder *selectSqlBuilder) getSqlRequest() string {
 			selectQueryBuilder.filterOperator, selectQueryBuilder.filterValue)
 	case "EQ":
 		prebuiltFilterOperatorWithValue = fmt.Sprintf("='%s'", selectQueryBuilder.filterValue)
-	default:
+	case "LIKE":
 		prebuiltFilterOperatorWithValue = fmt.Sprintf("%s '%s'", selectQueryBuilder.filterOperator,
 			selectQueryBuilder.filterValue)
 	}
