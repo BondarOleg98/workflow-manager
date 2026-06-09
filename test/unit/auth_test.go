@@ -25,7 +25,7 @@ var loginRequest = requestmodels.LoginRequest{
 }
 
 func preconfigureTestAuth() {
-	const configFilePath string = "../../app/resources/dev_env.yaml"
+	const configFilePath string = "../../app/resources/test_env.yaml"
 	util.LoadConfigs(configFilePath)
 	userRepository = NewMockUserRepository()
 	refreshTokenRepository = NewMockRefreshTokenRepository()
