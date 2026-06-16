@@ -3,7 +3,7 @@ package integration
 import (
 	"database/sql"
 	"testing"
-	"workflowmanager/app/db"
+	"workflowmanager/app/persistence/db"
 )
 
 func TestCorrectDatabaseInstance(test *testing.T) {

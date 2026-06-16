@@ -3,8 +3,8 @@ package repository
 import (
 	"database/sql"
 	"github.com/google/uuid"
-	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
+	"workflowmanager/app/persistence/db/queries"
 )
 
 type PostgresUserRepository struct {

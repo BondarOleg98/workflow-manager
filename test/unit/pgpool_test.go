@@ -2,7 +2,7 @@ package unit
 
 import (
 	"testing"
-	"workflowmanager/app/db"
+	"workflowmanager/app/persistence/db"
 	"workflowmanager/app/util"
 )
 
