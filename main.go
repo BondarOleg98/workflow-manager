@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 	"workflowmanager/app/components"
-	"workflowmanager/app/db"
+	"workflowmanager/app/persistence/db"
 	"workflowmanager/app/util"
 )
 

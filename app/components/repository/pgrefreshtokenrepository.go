@@ -2,8 +2,8 @@ package repository
 
 import (
 	"database/sql"
-	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
+	"workflowmanager/app/persistence/db/queries"
 )
 
 type PostgresRefreshTokenRepository struct {

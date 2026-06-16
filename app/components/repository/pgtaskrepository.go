@@ -5,8 +5,8 @@ import (
 	"log"
 	"log/slog"
 	"workflowmanager/app/components/repository/mapper"
-	"workflowmanager/app/db/queries"
 	"workflowmanager/app/models"
+	"workflowmanager/app/persistence/db/queries"
 )
 
 type PostgresTaskRepository struct {
