@@ -7,7 +7,7 @@ import (
 	"workflowmanager/app/components/repository"
 	"workflowmanager/app/components/security"
 	"workflowmanager/app/components/services"
-	"workflowmanager/app/db"
+	"workflowmanager/app/persistence/db"
 )
 
 func InitAppComponents() {
