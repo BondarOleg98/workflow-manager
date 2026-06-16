@@ -22,6 +22,10 @@ func InitDatabaseInstance(pool Pool) *sql.DB {
 				if err != nil {
 					log.Fatalf("The error during initialization DB's instance: %v", err)
 				}
+				if err = database.Ping(); err != nil {
+					log.Fatalf("The database is down: %v", err)
+					return
+				}
 				slog.Info("The DB's instance was initialized")
 			})
 	}
